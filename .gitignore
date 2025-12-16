@@ -1,2 +1,3 @@
-FPGA/base_project
-FPGA/srcs/bd/*
+FPGA/project/
+FPGA/outputs/
+FPGA/vivado*
