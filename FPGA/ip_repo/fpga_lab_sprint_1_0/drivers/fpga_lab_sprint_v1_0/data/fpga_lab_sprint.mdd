@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER fpga_lab_sprint
+	OPTION supported_peripherals = (fpga_lab_sprint);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = fpga_lab_sprint;
+END DRIVER
