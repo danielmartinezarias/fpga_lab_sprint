@@ -1,3 +1,4 @@
 FPGA/project/
-FPGA/outputs/
 FPGA/vivado*
+vivado*
+.Xil

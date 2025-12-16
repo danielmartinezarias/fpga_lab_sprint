@@ -1,11 +1,11 @@
 # project creation
-create_project project /home/daniel/github/fpga_lab_sprint/FPGA/project -part xc7z020clg484-1
+create_project project FPGA/project -part xc7z020clg484-1
 # set part
 set_property board_part digilentinc.com:zedboard:part0:1.1 [current_project]
 # set constraints
-add_files -fileset constrs_1 -norecurse /home/daniel/github/fpga_lab_sprint/FPGA/srcs/constraints/Zedboard-Master.xdc
+add_files -fileset constrs_1 -norecurse FPGA/srcs/constraints/Zedboard-Master.xdc
 # add user ip repo
-set_property  ip_repo_paths  /home/daniel/github/fpga_lab_sprint/FPGA/ip_repo/fpga_lab_sprint_1_0 [current_project]
+set_property  ip_repo_paths  FPGA/ip_repo/fpga_lab_sprint_1_0 [current_project]
 update_ip_catalog
 # create block design
 create_bd_design "design_1"
@@ -49,11 +49,13 @@ connect_bd_net [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins processing_system7_0
 connect_bd_net [get_bd_pins clk_wiz_0/clk100MHz] [get_bd_pins fpga_lab_sprint_0/clk_100MHz]
 connect_bd_net [get_bd_pins clk_wiz_0/clk350MHz] [get_bd_pins fpga_lab_sprint_0/clk_350MHz]
 # create HDL Wrapper
-make_wrapper -files [get_files /home/daniel/github/fpga_lab_sprint/FPGA/project/project.srcs/sources_1/bd/design_1/design_1.bd] -top
-add_files -norecurse /home/daniel/github/fpga_lab_sprint/FPGA/project/project.gen/sources_1/bd/design_1/hdl/design_1_wrapper.v
+make_wrapper -files [get_files FPGA/project/project.srcs/sources_1/bd/design_1/design_1.bd] -top
+add_files -norecurse FPGA/project/project.gen/sources_1/bd/design_1/hdl/design_1_wrapper.v
 # enable BIN file generation
 set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]
 # Synth, Impl, Bitsteam
 launch_runs impl_1 -to_step write_bitstream -jobs 12
+wait_on_run -timeout 180 impl_1
 # Generate XSA Hardware file
-write_hw_platform -fixed -include_bit -force -file /home/daniel/github/fpga_lab_sprint/FPGA/outputs/design_1_wrapper.xsa
+file rm FPGA/outputs/design_1_wrapper.xsa
+write_hw_platform -fixed -include_bit -force -file FPGA/outputs/design_1_wrapper.xsa

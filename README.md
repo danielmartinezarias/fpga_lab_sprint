@@ -18,3 +18,10 @@ Find these interesting modules for an optics related laboratory:
 
 ### Time Tagger
 Based on the work in Michael Adamic's [zynq_tdc](https://github.com/madamic/zynq_tdc.git) time to digital converter. 
+
+# How to use this repository?
+1. Generate a Vivado project by ruuning this command:
+```
+vivado -mode batch -source FPGA/make_project.tcl
+```
+This will create a project that you can modify and work with. 
