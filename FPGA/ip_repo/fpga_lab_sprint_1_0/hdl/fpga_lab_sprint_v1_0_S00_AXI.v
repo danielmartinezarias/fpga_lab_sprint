@@ -51,9 +51,12 @@
         input wire [31:0] CC_34,
         input wire [31:0] CC_35,
         input wire [31:0] CC_45,
+		//dac904
+		output reg [13:0] data_dac904 = 14'b01_1111_1111_1111,
+		output reg [7:0] control_dac904 = 8'd0,
 		// version and test
 		output reg [7:0] test_reg = 32'd1234567,
-		output reg [7:0] version = 8'd1,
+		output reg [7:0] version = 8'd2,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -2966,8 +2969,8 @@
 	        8'h1E   : reg_data_out <= CC_34;
 	        8'h1F   : reg_data_out <= CC_35;
 	        8'h20   : reg_data_out <= CC_45;
-	        8'h21   : reg_data_out <= slv_reg33;
-	        8'h22   : reg_data_out <= slv_reg34;
+	        8'h21   : reg_data_out <= {18'd0,data_dac904};
+	        8'h22   : reg_data_out <= {24'd0,control_dac904};
 	        8'h23   : reg_data_out <= slv_reg35;
 	        8'h24   : reg_data_out <= slv_reg36;
 	        8'h25   : reg_data_out <= slv_reg37;
@@ -3255,8 +3258,8 @@
 	        // 8'h1E   : replace_this_reg <= slv_reg30; // CC_34
 	        // 8'h1F   : replace_this_reg <= slv_reg31; // CC_35
 	        // 8'h20   : replace_this_reg <= slv_reg32; // CC_45
-	        // 8'h21   : replace_this_reg <= slv_reg33;
-	        // 8'h22   : replace_this_reg <= slv_reg34;
+	        8'h21   : data_dac904 <= slv_reg33[13:0];
+	        8'h22   : control_dac904 <= slv_reg34[7:0];
 	        // 8'h23   : replace_this_reg <= slv_reg35;
 	        // 8'h24   : replace_this_reg <= slv_reg36;
 	        // 8'h25   : replace_this_reg <= slv_reg37;

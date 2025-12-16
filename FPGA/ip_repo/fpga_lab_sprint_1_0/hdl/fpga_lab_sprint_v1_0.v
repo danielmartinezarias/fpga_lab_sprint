@@ -94,6 +94,9 @@
     wire [31:0] CC_34;
     wire [31:0] CC_35;
     wire [31:0] CC_45;
+    //dac904
+    wire [13:0] data_dac904;
+    wire [7:0] control_dac904;
     // version and test
     wire [7:0] test_reg;
     wire [7:0] version;
@@ -149,6 +152,13 @@
         .delayTT5(delayTT5)
     );
 
+    dac904 dac904_inst(
+        .clk(clk_100MHz),
+        .control(control_dac904),
+        .data(data_dac904),
+        .dac_in(gpio_breakout[20:7])
+    );
+
 	
 // Instantiation of Axi Bus Interface S00_AXI
 	fpga_lab_sprint_v1_0_S00_AXI # ( 
@@ -191,6 +201,9 @@
         .CC_34(CC_34),
         .CC_35(CC_35),
         .CC_45(CC_45),
+        //dac904
+        .data_dac904(data_dac904),
+        .control_dac904(control_dac904),
         // version and test
         .test_reg(test_reg),
         .version(version),
