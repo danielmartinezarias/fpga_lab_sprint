@@ -55,7 +55,8 @@
 		output reg [13:0] data_dac904 = 14'b01_1111_1111_1111,
 		output reg [7:0] control_dac904 = 8'd0,
 		// version and test
-		output reg [7:0] test_reg = 32'd1234567,
+		output reg master_reset = 1'd0,
+		output reg [31:0] test_reg = 32'd1234567,
 		output reg [7:0] version = 8'd2,
 		// User ports ends
 		// Do not modify the ports beyond this line
@@ -3189,8 +3190,8 @@
 	        8'hFA   : reg_data_out <= slv_reg250;
 	        8'hFB   : reg_data_out <= slv_reg251;
 	        8'hFC   : reg_data_out <= slv_reg252;
-	        8'hFD   : reg_data_out <= slv_reg253;
-	        8'hFE   : reg_data_out <= {24'd0,test_reg};
+	        8'hFD   : reg_data_out <= {31'd0,maser_reset};
+	        8'hFE   : reg_data_out <= test_reg;
 	        8'hFF   : reg_data_out <= {24'd0,version};
 	        default : reg_data_out <= 0;
 	      endcase
@@ -3478,14 +3479,15 @@
 	        // 8'hFA   : replace_this_reg <= slv_reg250;
 	        // 8'hFB   : replace_this_reg <= slv_reg251;
 	        // 8'hFC   : replace_this_reg <= slv_reg252;
-	        // 8'hFD   : replace_this_reg <= slv_reg253;
-	        8'hFE   : test_reg <= slv_reg254[7:0];
+	        8'hFD   : master_reset <= 1'b1;
+	        8'hFE   : test_reg <= slv_reg254;
 	        // 8'hFF   : replace_this_reg <= slv_reg255; // version
             endcase
         end
         else begin
-            startTT          <= 1'b0; //flag
-			reset_TT         <= 1'b0; //flag
+            startTT				<= 1'b0;
+			reset_TT			<= 1'b0;
+			master_reset		<= 1'b0;
         end
     end
     

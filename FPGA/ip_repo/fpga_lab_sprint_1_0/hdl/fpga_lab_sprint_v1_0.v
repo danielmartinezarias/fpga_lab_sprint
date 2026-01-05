@@ -98,6 +98,7 @@
     wire [13:0] data_dac904;
     wire [7:0] control_dac904;
     // version and test
+    wire master_reset;
     wire [7:0] test_reg;
     wire [7:0] version;
 
@@ -202,6 +203,7 @@
         .CC_35(CC_35),
         .CC_45(CC_45),
         //dac904
+        .master_reset(master_reset),
         .data_dac904(data_dac904),
         .control_dac904(control_dac904),
         // version and test
