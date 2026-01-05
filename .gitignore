@@ -2,3 +2,6 @@ FPGA/project/
 FPGA/vivado*
 vivado*
 .Xil
+__pycache__/
+*.jou
+*.wic

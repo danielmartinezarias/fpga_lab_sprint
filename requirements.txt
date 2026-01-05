@@ -1,1 +1,2 @@
 Vivado 2023.2 or newer
+Petalinux 2023.2 or newer

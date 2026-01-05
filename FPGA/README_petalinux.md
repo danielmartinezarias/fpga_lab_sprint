@@ -58,6 +58,27 @@ Configure the Device-Tree ,this step is needed because it generates `.dtsi` and 
 ```
 DISTRO='petalinux' petalinux-config -c device-tree --project $PROJECT_NAME
 ```
+We need to override the .dtsi file to enable ethernet
+```
+vi $PROJECT_NAME/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
+```
+and edit it so it looks like this:
+```
+/include/ "system-conf.dtsi"
+/ {
+};
+
+&gem0 {
+    status = "okay";
+    phy-mode = "rgmii-id";
+    phy-handle = <&phy0>;
+
+    phy0: ethernet-phy@0 {
+        reg = <0>;
+        device_type = "ethernet-phy";
+    };
+};
+```
 
 7. Build
 ```
