@@ -1,0 +1,23 @@
+{
+    "timetagger": {
+      "delay0": 0,
+      "delay1": 0,
+      "delay2": 0,
+      "delay3": 0,
+      "delay4": 0,
+      "delay5": 0,
+      "int_time_ms": 1000,
+      "coin_window_ns": 170,
+      "sampling_window_ns": 100,
+      "extra_sleep": 10,
+      "channel_mapping": {
+        "__comment": "Mapping of TT channels to Chip Channels",
+        "TT_C0": 0,
+        "TT_C1": 1,
+        "TT_C2": 2,
+        "TT_C3": 3,
+        "TT_C4": 4,
+        "TT_C5": 5
+      }
+    }
+}
