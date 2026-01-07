@@ -43,7 +43,6 @@ DISTRO='petalinux' petalinux-config -c rootfs --project $PROJECT_NAME
 -  Include python3: `[Filesystem Packages] ---> misc ---> python3 --->mmap, datetime,threading,json`
 - Include python3-numpy: `[Filesystem Packages] ---> devel ---> python3-numpy`
 -  Include git: `[Filesystem Packages] ---> console ---> utils ---> git`
-- Include dropbear: `[Filesystem Packages] ---> console ---> network ---> dropbear`
 - Add users: `[Petalinux RootFS Settings] --->` `Add Extra Users`, use this:
 `root:root;petalinux:;`
 
@@ -82,12 +81,12 @@ and edit it so it looks like this:
 
 7. Build
 ```
-DISTRO="petalinux' petalinux-build --project $PROJECT_NAME/
+DISTRO='petalinux' petalinux-build --project $PROJECT_NAME/
 ```
 
 8. Package
 ```
-petalinux-package --boot --format BIN --fsbl images/linux/zynq_fsbl.elf --u-boot --project $PROJECT_NAME
+petalinux-package --boot --format BIN --fsbl $PROJECT_NAME/images/linux/zynq_fsbl.elf --u-boot --project $PROJECT_NAME
 ```
 
 9. Create SD card files
@@ -103,7 +102,13 @@ scp coder.fpga-lab-sprint:/home/kasm-user/github/fpga_lab_sprint/FPGA/PROJECT_NA
 ```
 It is a big file ~6GB
 
-11. Format an SD card to EXT4, 8GB
+11. Format an SD card to EXT4, 8GB:
+    - After plugging the SD card to your pc, In your terminal
+    ```
+    lsblk (this will output the connected devices)
+    sudo umount /dev/sdc* (most likely the sdcard is sdc1 and sdc2, umount them)
+    ```
+
 12. Write the disk
 ```
 sudo dd if=github/fpga_lab_sprint/FPGA/outputs/petalinux-sdimage.wic of=/dev/sdc bs=4M status=progress conv=fsync
@@ -120,7 +125,16 @@ Outputs is ttyACM0, tty0, etc.
 ```
 sudo picocom -b 115200 /dev/ttyACM0
 ```
-15. Set a password
+16. Use the user 'petalinux' (no password needed)
+
+
+## Flashing a bitstream
+
+1. sudo chmod +x bitstreams/fpga-bit-to-bin.py
+2. ./fpga-bit-to-bin.py -f BITSTREAM_FILE.bit  BITSTREAM_FILE.bit.bin
+3. sudo fpgautil -o pl.dtbo (just once)
+4. sudo fpgautil -b BITSTREAM_FILE.bit.bin -f Full
+
 
 ## Zedboard terminal access via Ethernet
 ### On TeraTerm

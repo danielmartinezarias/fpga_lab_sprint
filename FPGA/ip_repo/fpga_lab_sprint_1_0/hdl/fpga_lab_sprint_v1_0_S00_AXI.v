@@ -3190,7 +3190,7 @@
 	        8'hFA   : reg_data_out <= slv_reg250;
 	        8'hFB   : reg_data_out <= slv_reg251;
 	        8'hFC   : reg_data_out <= slv_reg252;
-	        8'hFD   : reg_data_out <= {31'd0,maser_reset};
+	        8'hFD   : reg_data_out <= {31'd0,master_reset};
 	        8'hFE   : reg_data_out <= test_reg;
 	        8'hFF   : reg_data_out <= {24'd0,version};
 	        default : reg_data_out <= 0;

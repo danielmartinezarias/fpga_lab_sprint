@@ -10,10 +10,27 @@ update_ip_catalog
 # create block design
 create_bd_design "design_1"
 update_compile_order -fileset sources_1
-# add Zynq7
+# add Zynq7 and configure ethernet and qspi
 startgroup
 create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0
 endgroup
+set_property -dict [list \
+  CONFIG.PCW_ENET0_GRP_MDIO_IO {MIO 52 .. 53} \
+  CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} \
+  CONFIG.PCW_MIO_16_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_17_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_18_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_19_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_20_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_21_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_22_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_23_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_24_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_25_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_26_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_MIO_27_IOTYPE {LVCMOS 1.8V} \
+  CONFIG.PCW_QSPI_GRP_SINGLE_SS_ENABLE {1} \
+] [get_bd_cells processing_system7_0]
 apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" apply_board_preset "1" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
 # add fpga_lab_sprint ip
 startgroup

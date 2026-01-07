@@ -39,4 +39,3 @@ if __name__ == "__main__":
         res = z.test_reg_read()
     end = time.time()
     print(f'Time taken for {n} writes and reads:', end - start, 'seconds')
-

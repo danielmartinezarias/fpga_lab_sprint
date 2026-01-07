@@ -203,10 +203,10 @@
         .CC_35(CC_35),
         .CC_45(CC_45),
         //dac904
-        .master_reset(master_reset),
         .data_dac904(data_dac904),
         .control_dac904(control_dac904),
         // version and test
+        .master_reset(master_reset),
         .test_reg(test_reg),
         .version(version),
 		.S_AXI_ACLK(s00_axi_aclk),

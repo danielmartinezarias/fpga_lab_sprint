@@ -1,0 +1,70 @@
+{
+    "zynq_boards": {
+        "Zedboard": {
+            "address_offset": "0x43C00000"
+	},
+        "addresses": {
+            "VERSION": "0xFF",
+            "RESET": "0xFD",
+            "TEST_REG": "0xFE"
+        },
+        "values": {
+            "TEST_REG": "0x00000001"
+        }
+    },
+    "timetagger": {
+        "coin_address": {
+            "TT_C0": "0x0C",
+            "TT_C1": "0x0D",
+            "TT_C2": "0x0E",
+            "TT_C3": "0x0F",
+            "TT_C4": "0x10",
+            "TT_C5": "0x11",
+            "TT_CC01": "0x12",
+            "TT_CC02": "0x13",
+            "TT_CC03": "0x14",
+            "TT_CC04": "0x15",
+            "TT_CC05": "0x16",
+            "TT_CC12": "0x17",
+            "TT_CC13": "0x18",
+            "TT_CC14": "0x19",
+            "TT_CC15": "0x1A",
+            "TT_CC23": "0x1B",
+            "TT_CC24": "0x1C",
+            "TT_CC25": "0x1D",
+            "TT_CC34": "0x1E",
+            "TT_CC35": "0x1F",
+            "TT_CC45": "0x20"
+        },
+        "length": 4,
+        "clock_speed": 350000000,
+        "max_int_time": 10000,
+        "addresses": {
+            "START_TIME_TAGGER": "0x03",
+            "SAMPLING_WINDOW": "0x00",
+            "COIN_WINDOW": "0x01",
+            "INT_TIME": "0x02",
+            "DELAY0": "0x04",
+            "DELAY1": "0x05",
+            "DELAY2": "0x06",
+            "DELAY3": "0x07",
+            "DELAY4": "0x08",
+            "DELAY5": "0x09",
+            "RESET": "0x0B"
+        },
+        "values": {
+            "START": "0x1",
+            "START_RESET": "0x1"
+        }
+    },
+    "dac904": {
+        "addresses": {
+            "DATA_DAC904": "0x21",
+            "CONTROL_DAC904": "0x22"
+        },
+        "values": {
+            "DATA_DAC904": "0x1FFF",      
+            "CONTROL_DAC904": "0x0"
+        }
+    }
+}
