@@ -24,10 +24,12 @@ module dac904(
     input wire clk,
     input wire [7:0] control,
     input wire [13:0] data,
-    output reg [13:0] dac_in = 14'b01_1111_1111_1111
+    output reg [13:0] dac_in = 14'b01_1111_1111_1111,
+    output wire clk_out
     );
 
 reg [7:0] fsm = 8'd0;
+assign clk_out = clk;
 
 always @ (posedge clk) begin
     case(fsm)

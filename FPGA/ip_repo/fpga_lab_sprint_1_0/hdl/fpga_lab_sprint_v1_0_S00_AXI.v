@@ -57,7 +57,8 @@
 		// version and test
 		output reg master_reset = 1'd0,
 		output reg [31:0] test_reg = 32'd1234567,
-		output reg [7:0] version = 8'd2,
+		// 2025-01-08 DMA version 03: fix dac904 wiring
+		output reg [7:0] version = 8'd3,
 		// User ports ends
 		// Do not modify the ports beyond this line
 

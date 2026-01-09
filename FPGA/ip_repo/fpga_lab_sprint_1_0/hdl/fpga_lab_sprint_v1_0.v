@@ -107,7 +107,7 @@
     ///////////////////////////////////
 
     assign led = version;
-    assign signal = gpio_breakout[6:0];
+    assign signal = gpio_breakout[5:0];
 
 	///////////////////////////////////
     /////////////TimeTagger////////////
@@ -157,7 +157,8 @@
         .clk(clk_100MHz),
         .control(control_dac904),
         .data(data_dac904),
-        .dac_in(gpio_breakout[20:7])
+        .dac_in(gpio_breakout[19:6]),
+        .clk_out(gpio_breakout[20])
     );
 
 	

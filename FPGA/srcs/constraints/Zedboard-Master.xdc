@@ -260,21 +260,21 @@ set_property PACKAGE_PIN B19 [get_ports {gpio_breakout[2]}];  # signal2
 set_property PACKAGE_PIN B20 [get_ports {gpio_breakout[3]}];  # signal3
 set_property PACKAGE_PIN D20 [get_ports {gpio_breakout[4]}];  # signal4
 set_property PACKAGE_PIN C20 [get_ports {gpio_breakout[5]}];  # signal5
-set_property PACKAGE_PIN G21 [get_ports {gpio_breakout[6]}];  # gpio_breakout ADC
-set_property PACKAGE_PIN G20 [get_ports {gpio_breakout[7]}];  # gpio_breakout ADC
-set_property PACKAGE_PIN J16 [get_ports {gpio_breakout[8]}];  # gpio_breakout ADC
-set_property PACKAGE_PIN J17 [get_ports {gpio_breakout[9]}];  # gpio_breakout ADC
-set_property PACKAGE_PIN G19 [get_ports {gpio_breakout[10]}]; # gpio_breakout ADC
-set_property PACKAGE_PIN K21 [get_ports {gpio_breakout[11]}]; # gpio_breakout ADC
-set_property PACKAGE_PIN J20 [get_ports {gpio_breakout[12]}]; # gpio_breakout ADC
-set_property PACKAGE_PIN G16 [get_ports {gpio_breakout[13]}]; # gpio_breakout ADC
-set_property PACKAGE_PIN G15 [get_ports {gpio_breakout[14]}]; # gpio_breakout ADC
-set_property PACKAGE_PIN F19 [get_ports {gpio_breakout[15]}]; # gpio_breakout ADC
-set_property PACKAGE_PIN K20 [get_ports {gpio_breakout[16]}]; # gpio_breakout LD_CL1_ON
-set_property PACKAGE_PIN D21 [get_ports {gpio_breakout[17]}]; # gpio_breakout LD_CL2_ON
-set_property PACKAGE_PIN E21 [get_ports {gpio_breakout[18]}]; # gpio_breakout LD_CL3_ON
-set_property PACKAGE_PIN K19 [get_ports {gpio_breakout[19]}]; # gpio_breakout LD_CL4_ON
-set_property PACKAGE_PIN M17 [get_ports {gpio_breakout[20]}]; # gpio_breakout LD_CL5_ON
+set_property PACKAGE_PIN G21 [get_ports {gpio_breakout[6]}];  # gpio_breakout ADC HARWIN 1 dac_in[0]
+set_property PACKAGE_PIN G20 [get_ports {gpio_breakout[7]}];  # gpio_breakout ADC HARWIN 2 dac_in[1]
+set_property PACKAGE_PIN J17 [get_ports {gpio_breakout[8]}];  # gpio_breakout ADC HARWIN 3 dac_in[2]
+set_property PACKAGE_PIN J16 [get_ports {gpio_breakout[9]}];  # gpio_breakout ADC HARWIN 4 dac_in[3]
+set_property PACKAGE_PIN K21 [get_ports {gpio_breakout[10]}]; # gpio_breakout ADC HARWIN 5 dac_in[4]
+set_property PACKAGE_PIN J20 [get_ports {gpio_breakout[11]}]; # gpio_breakout ADC HARWIN 6 dac_in[5]
+set_property PACKAGE_PIN G15 [get_ports {gpio_breakout[12]}]; # gpio_breakout ADC HARWIN 7 dac_in[6]
+set_property PACKAGE_PIN G16 [get_ports {gpio_breakout[13]}]; # gpio_breakout ADC HARWIN 8 dac_in[7]
+set_property PACKAGE_PIN G19 [get_ports {gpio_breakout[14]}]; # gpio_breakout ADC HARWIN 9 dac_in[8]
+set_property PACKAGE_PIN F19 [get_ports {gpio_breakout[15]}]; # gpio_breakout ADC HARWIN 10 dac_in[9]
+set_property PACKAGE_PIN P20 [get_ports {gpio_breakout[16]}]; # gpio_breakout CW  HARWIN 1 dac_in[10]
+set_property PACKAGE_PIN T17 [get_ports {gpio_breakout[17]}]; # gpio_breakout CW  HARWIN 2 dac_in[11]
+set_property PACKAGE_PIN T16 [get_ports {gpio_breakout[18]}]; # gpio_breakout CW  HARWIN 3 dac_in[12]
+set_property PACKAGE_PIN N17 [get_ports {gpio_breakout[19]}]; # gpio_breakout CW  HARWIN 4 dac_in[13]
+set_property PACKAGE_PIN N18 [get_ports {gpio_breakout[20]}]; # gpio_breakout CW  HARWIN 5 dac_clk
 set_property PACKAGE_PIN L17 [get_ports {gpio_breakout[21]}]; # gpio_breakout LD_CL6_ON
 set_property PACKAGE_PIN T19 [get_ports {gpio_breakout[22]}]; # gpio_breakout LD_tx
 set_property PACKAGE_PIN R21 [get_ports {gpio_breakout[23]}]; # gpio_breakout LD_rx

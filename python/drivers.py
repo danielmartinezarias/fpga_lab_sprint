@@ -59,7 +59,7 @@ class ZynqBoard:
         else: 
             model = os.getenv("FPGA_MODEL")
             if not model:
-                sys.exit("FPGA_MODEL not set — export FP_MODEL='ZedBoard' before running.")
+                sys.exit("FPGA_MODEL not set — export FPGA_MODEL='ZedBoard' before running.")
 
     @staticmethod
     def create_zedboard():
