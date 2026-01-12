@@ -17,6 +17,7 @@ logging_available = True
 global MAP_MASK
 MAP_MASK = mmap.PAGESIZE - 1  # TODO: what is this?
 default_sleep = 0.1
+# Ensure the script is run as root
 if os.geteuid() != 0:
     sys.exit("Please run as root, preseving env (sudo -E python3 script.py).")
 

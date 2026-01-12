@@ -24,11 +24,13 @@ module dac904(
     input wire clk,
     input wire [7:0] control,
     input wire [13:0] data,
-    output reg [13:0] dac_in = 14'b01_1111_1111_1111,
+    output wire [13:0] dac_in,
     output wire clk_out
     );
 
 reg [7:0] fsm = 8'd0;
+reg [13:0] dac = 14'b01_1111_1111_1111;
+assign dac_in = {dac[0], dac[1], dac[2], dac[3], dac[4], dac[5], dac[6], dac[7], dac[8], dac[9], dac[10], dac[11], dac[12], dac[13]}; // Bit-reversed: D0 is MSB, D13 is LSB
 assign clk_out = clk;
 
 always @ (posedge clk) begin
@@ -41,7 +43,7 @@ always @ (posedge clk) begin
                 end
                 1:begin //ramp
                     fsm <= 2;
-                    dac_in <= 14'b01_1111_1111_1111;
+                    dac <= 14'b01_1111_1111_1111;
                 end
                 default:begin
                     fsm <= 0;
@@ -51,7 +53,7 @@ always @ (posedge clk) begin
 
         1:begin
             if(control == 0)begin // until control is not changed
-                dac_in <= data;
+                dac <= data;
             end
             else begin
                 fsm <= 0;
@@ -60,7 +62,7 @@ always @ (posedge clk) begin
 
         2:begin
             if(control == 1)begin // until control is not changed
-                dac_in <= dac_in + 14'd1;
+                dac <= dac + 14'd1;
             end
             else begin
                 fsm <= 0;
