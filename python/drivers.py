@@ -17,9 +17,86 @@ logging_available = True
 global MAP_MASK
 MAP_MASK = mmap.PAGESIZE - 1  # TODO: what is this?
 default_sleep = 0.1
+
 # Ensure the script is run as root
 if os.geteuid() != 0:
     sys.exit("Please run as root, preseving env (sudo -E python3 script.py).")
+
+###########################################################################################
+###################### Utils functions for logging and saving results #####################
+###########################################################################################
+
+def zynq_save_results(results, filename, folder=""):
+    path = f"results/{str(os.environ.get('FPGA_MODEL'))}/{folder}"
+    os.makedirs(path, exist_ok=True)
+    output_path = os.path.join(path, f"{filename}.json")
+    with file_lock:
+        try:
+            with open(output_path, "r") as json_file:
+                file_data = json.loads(json_file.read())
+        except FileNotFoundError:
+            file_data = {}
+            zynq_log(f"File {output_path} not found, creating a new one.")
+        # change it
+        file_data.update(results)
+        # write it all back
+        with open(output_path, "w") as json_file:
+            json_file.write(json.dumps(file_data))
+
+    return output_path
+
+def zynq_log(msg, level="info"):
+    global logger
+    level = getattr(logging, level.upper(), None)
+    logger.log(level, msg)
+
+def zynq_setup_logging(filename, folder="", level="INFO"):
+    global logger
+    path = f"results/{str(os.environ.get('FPGA_MODEL'))}/{folder}"
+    os.makedirs(path, exist_ok=True)
+    output_path = os.path.join(path, f"{filename}.log")
+
+    logger.setLevel(level.upper())
+    if not logger.hasHandlers():
+        sh = logging.StreamHandler(sys.stdout)
+        sh.setFormatter(fmt)
+        fh = logging.FileHandler(output_path)
+        fh.setFormatter(fmt)
+        if not os.environ.get("FPGA_MODEL") or os.environ.get("FPGA_MODEL").upper() in ["TEST", "ZEDBOARD"]:
+            logger.addHandler(sh)
+            logger.addHandler(fh)
+        else:
+            logger.addHandler(fh)
+
+def list_of_ints(arg):
+    return list(map(int, arg.split(',')))
+
+def list_of_floats(arg):
+    return list(map(float, arg.split(',')))
+
+def defaults_parse_args(parser, argv):
+    # instead of failing, on a parsing error we load the defaults
+    # 
+    # When parsing failes, argparse writes an errormessage and exits.
+    # there is no meaningful information in the thrown exception
+    # 
+    # simply asking for the help test via --help / -h ALSO THROWS THE EXACT SAME Exception
+    # which means that "--help" would start the script with default values.
+    # we can check the args to the script to work around this issue
+    onlyhelp = "--help" in argv or "-h" in argv
+    try:
+        args = parser.parse_args(argv)
+    except:
+        zynq_log('Failed to parse arguments. Using defaults.', level="error")
+        args = parser.parse_args([])
+        if onlyhelp:
+            sys.exit()
+    return args
+
+
+###########################################################################################
+##################################### ZynqBoard class #####################################
+###########################################################################################
 
 class ZynqBoard:
 
@@ -118,6 +195,10 @@ class ZynqBoard:
         """
         return self._TimeTagger(self, sampling_window_ns, coin_window_ns, int_time_ms,
                                 delay0, delay1, delay2, delay3, delay4, delay5)
+    
+    def get_dac904(self):
+        """ Returns an instance of the DAC904 """
+        return self._DAC904(self)
 
     ################################################################################################################
     ############################################### TimeTagger class ###############################################
@@ -266,77 +347,28 @@ class ZynqBoard:
                 self.zynqboard.write_addr(self.ADDRESSES("RESET"), self.VALUES("START_RESET"))
                 time.sleep(default_sleep)
 
+    ############################################################################################
+    ####################################### DAC904 Class #######################################
+    ############################################################################################
+    class _DAC904:
+        def __init__(self,zynqboard):
+            """ Returns an instance of the DAC904"""
+            self.zynqboard=zynqboard
 
+            self.DACConfig = self.zynqboard.config["dac904"]
+            self.DACCalib = self.zynqboard.calibration["dac904"]
 
-###########################################################################################
-###################### Utils functions for logging and saving results #####################
-###########################################################################################
-
-def zynq_save_results(results, filename, folder=""):
-    path = f"results/{str(os.environ.get('FPGA_MODEL'))}/{folder}"
-    os.makedirs(path, exist_ok=True)
-    output_path = os.path.join(path, f"{filename}.json")
-    with file_lock:
-        try:
-            with open(output_path, "r") as json_file:
-                file_data = json.loads(json_file.read())
-        except FileNotFoundError:
-            file_data = {}
-            zynq_log(f"File {output_path} not found, creating a new one.")
-        # change it
-        file_data.update(results)
-        # write it all back
-        with open(output_path, "w") as json_file:
-            json_file.write(json.dumps(file_data))
-
-    return output_path
-
-def zynq_log(msg, level="info"):
-    global logger
-    level = getattr(logging, level.upper(), None)
-    logger.log(level, msg)
-
-
-def zynq_setup_logging(filename, folder="", level="INFO"):
-    global logger
-    path = f"results/{str(os.environ.get('FPGA_MODEL'))}/{folder}"
-    os.makedirs(path, exist_ok=True)
-    output_path = os.path.join(path, f"{filename}.log")
-
-    logger.setLevel(level.upper())
-    if not logger.hasHandlers():
-        sh = logging.StreamHandler(sys.stdout)
-        sh.setFormatter(fmt)
-        fh = logging.FileHandler(output_path)
-        fh.setFormatter(fmt)
-        if not os.environ.get("FPGA_MODEL") or os.environ.get("FPGA_MODEL").upper() in ["TEST", "ZEDBOARD"]:
-            logger.addHandler(sh)
-            logger.addHandler(fh)
-        else:
-            logger.addHandler(fh)
-
-def list_of_ints(arg):
-    return list(map(int, arg.split(',')))
-
-def list_of_floats(arg):
-    return list(map(float, arg.split(',')))
-
-def defaults_parse_args(parser, argv):
-    # instead of failing, on a parsing error we load the defaults
-    # 
-    # When parsing failes, argparse writes an errormessage and exits.
-    # there is no meaningful information in the thrown exception
-    # 
-    # simply asking for the help test via --help / -h ALSO THROWS THE EXACT SAME Exception
-    # which means that "--help" would start the script with default values.
-    # we can check the args to the script to work around this issue
-    onlyhelp = "--help" in argv or "-h" in argv
-    try:
-        args = parser.parse_args(argv)
-    except:
-        zynq_log('Failed to parse arguments. Using defaults.', level="error")
-        args = parser.parse_args([])
-        if onlyhelp:
-            sys.exit()
-    return args
+            self.ADDRESSES = lambda addr: int(self.DACConfig["addresses"][addr], 16)
+            self.VALUES = lambda value: int(self.DACConfig["values"][value], 16)
+        
+        def set_dac904_voltage(self, voltage: float):
+            """ Set the output voltage of the DAC904
+            :param voltage: Voltage in Volts
+            """
+            if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
+                zynq_log(f"Voltage {voltage} V out of range!", level="ERROR")
+                raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} V")
+            dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
+            zynq_log(f"Setting DAC904 to {voltage} V (DAC value: {dac_value})", level="INFO")
+            self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
 

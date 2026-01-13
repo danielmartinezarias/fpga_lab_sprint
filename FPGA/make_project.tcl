@@ -76,4 +76,5 @@ wait_on_run -timeout 180 impl_1
 # Generate XSA Hardware file
 write_hw_platform -fixed -include_bit -force -file FPGA/outputs/design_1_wrapper.xsa
 file copy -force FPGA/project/project.runs/impl_1/design_1_wrapper.bit FPGA/outputs/
-file copy -force FPGA/project/project.runs/impl_1/design_1_wrapper.bin FPGA/outputs/
+file copy -force FPGA/project/project.runs/impl_1/design_1_wrapper.bit bitstreams/
+file copy -force FPGA/outputs/design_1_wrapper.xsa bitstreams/

@@ -19,5 +19,11 @@
         "TT_C4": 4,
         "TT_C5": 5
       }
+    },
+    "dac904": {
+      "min_voltage": -3,
+      "max_voltage": 3,
+      "default_voltage": 0,
+      "resolution": 14
     }
 }
