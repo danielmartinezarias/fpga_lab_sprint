@@ -5,8 +5,16 @@
 (Add this line to the end)
 FPGA_MODEL='ZedBoard'
 2. `vi ~/.bashrc`
-(Add this line at the end)
+(Add these lines at the end)
+```
 source /etc/environment
+PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+alias ls='ls --color=auto'
+alias ll='ls -alF --color=auto'
+alias la='ls -A --color=auto'
+export LS_COLORS='di=01;34:ln=01;36:ex=01;32:*.tar=01;31:*.zip=01;31:*.jpg=01;35:*.png=01;35'
+```
+
 
 
 ## Configure ssh
@@ -28,10 +36,11 @@ PermitEmptyPasswords yes`
 1. `git clone https://github.com/danielmartinezarias/fpga_lab_sprint.git'
 
 ## To automatically flash the bitstream after reboot
-1. copy startup_bitstream.sh to your home directory
-2. chmod +x startup_bitstream.sh
-3. sudo vi /etc/init.d/startup_bitstream.sh
+1. `cp fpga_lab_sprint/bitstreams/startup_bitstream.sh .` copy script to your home directory
+2. `chmod +x startup_bitstream.sh`
+3. `sudo vi /etc/init.d/startup_bitstream.sh`
 (Must be this)
+```
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          startup_bitstream
@@ -42,8 +51,9 @@ PermitEmptyPasswords yes`
 # Short-Description: flashing bitsteam after login
 ### END INIT INFO
 /home/petalinux/startup_bitstream.sh
-4. sudo chmod +x /etc/init.d/startup_bitstream.sh
-5. sudo update-rc.d startup_bitstream.sh defaults
+```
+4. `sudo chmod +x /etc/init.d/startup_bitstream.sh`
+5. `sudo update-rc.d startup_bitstream.sh defaults`
 
 
 
