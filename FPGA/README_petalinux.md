@@ -42,7 +42,8 @@ DISTRO='petalinux' petalinux-config -c rootfs --project $PROJECT_NAME
 ```
 -  Include python3: `[Filesystem Packages] ---> misc ---> python3 --->mmap, datetime,threading,json`
 - Include python3-numpy: `[Filesystem Packages] ---> devel ---> python3-numpy`
--  Include git: `[Filesystem Packages] ---> console ---> utils ---> git`
+-  Include git: `[Filesystem Packages] ---> console ---> utils ---> git, gzip, screen, grep`
+-  Include sudo: `[Filesystem Packages] ---> admin ---> sudo`
 - Add users: `[Petalinux RootFS Settings] --->` `Add Extra Users`, use this:
 `root:root;petalinux:;`
 
@@ -51,7 +52,27 @@ Configure the kernel:
 ```
 DISTRO='petalinux' petalinux-config -c kernel --project $PROJECT_NAME
 ```  
-No need to change something in the configuration
+Enable OTG USB drivers
+```
+Device Drivers  --->
+    [*] USB support  --->
+        <*> Support for Host-side USB
+        <*> OTG support
+        <*> ChipIdea Highspeed Dual Role Controller
+            [*] ChipIdea host support
+            [*] ChipIdea device support
+        <*> USB Gadget Support  ---> (keep default)
+        <*> USB Mass Storage support
+        <*> USB Serial Converter support  --->
+            <*> USB FTDI Single Port Serial Driver
+            <*> USB Prolific 2303 Single Port Serial Driver
+            <*> USB CP210x converter
+            <*> USB CH341 single port serial driver
+        <*> USB Modem (CDC ACM) support
+        <*> USB Test and Measurement Class (USBTMC) driver
+        <*> USB hub drivers (Generic)
+```
+
 
 Configure the Device-Tree ,this step is needed because it generates `.dtsi` and `.dtbo` files
 ```
@@ -64,19 +85,96 @@ vi $PROJECT_NAME/project-spec/meta-user/recipes-bsp/device-tree/files/system-use
 and edit it so it looks like this:
 ```
 /include/ "system-conf.dtsi"
+
 / {
+    /* Fixed 5V regulator controlled by MIO 52 */
+    vbus_reg: regulator-vbus {
+        compatible = "regulator-fixed";
+        regulator-name = "usb0-vbus";
+        regulator-min-microvolt = <5000000>;
+        regulator-max-microvolt = <5000000>;
+        gpio = <&gpio0 52 0>;  /* MIO 52 */
+        enable-active-high;
+        regulator-boot-on;
+        regulator-always-on;
+    };
+
+    /* ULPI PHY — defined fresh here, not as an override */
+    usb_phy0: phy0 {
+        compatible = "ulpi-phy";
+        #phy-cells = <0>;
+        reg = <0xe0002000 0x1000>;
+        view-port = <0x0170>;
+        drv-vbus;
+        vcc-supply = <&vbus_reg>;
+    };
+
 };
 
 &gem0 {
     status = "okay";
     phy-mode = "rgmii-id";
-    phy-handle = <&phy0>;
+    phy-handle = <&phy0_eth>;
 
+    phy0_eth: ethernet-phy@0 {
+        reg = <0>;
+        device_type = "ethernet-phy";
+    };
+};
+
+&usb0 {
+    status = "okay";
+    dr_mode = "host";
+    usb-phy = <&usb_phy0>;
+};
+
+
+
+
+#################### NEW ####################
+/include/ "system-conf.dtsi"
+
+/ {
+    /* 5V VBUS regulator, toggled by MIO 52 on ZedBoard */
+    vbus_reg: regulator-vbus {
+        compatible = "regulator-fixed";
+        regulator-name = "usb0-vbus";
+        regulator-min-microvolt = <5000000>;
+        regulator-max-microvolt = <5000000>;
+        gpio = <&gpio0 52 0>;
+        enable-active-high;
+        regulator-always-on;
+    };
+
+    /* ULPI PHY — renamed to usb_phy to avoid collision */
+    usb_phy0: usb-phy {
+        compatible = "ulpi-phy";
+        #phy-cells = <0>;
+        reg = <0xe0002000 0x1000>;
+        view-port = <0x0170>;
+        drv-vbus;
+        vcc-supply = <&vbus_reg>;
+    };
+};
+
+/* Ethernet configuration */
+&gem0 {
+    status = "okay";
+    phy-mode = "rgmii-id";
+    phy-handle = <&phy0>;
     phy0: ethernet-phy@0 {
         reg = <0>;
         device_type = "ethernet-phy";
     };
 };
+
+/* USB configuration */
+&usb0 {
+    status = "okay";
+    dr_mode = "host";
+    usb-phy = <&usb_phy0>;
+};
+
 ```
 
 7. Build
@@ -103,11 +201,11 @@ scp coder.fpga-lab-sprint:/home/kasm-user/github/fpga_lab_sprint/FPGA/PROJECT_NA
 It is a big file ~6GB
 
 11. Format an SD card to EXT4, 8GB:
-    - After plugging the SD card to your pc, In your terminal
-    ```
-    lsblk (this will output the connected devices)
-    sudo umount /dev/sdc* (most likely the sdcard is sdc1 and sdc2, umount them)
-    ```
+- After plugging the SD card to your pc, In your terminal
+```
+lsblk (this will output the connected devices)
+sudo umount /dev/sdc* (most likely the sdcard is sdc1 and sdc2, umount them)
+```
 
 12. Write the disk
 ```

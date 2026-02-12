@@ -8,7 +8,7 @@ FPGA_MODEL='ZedBoard'
 (Add these lines at the end)
 ```
 source /etc/environment
-PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+PS1='\[\033[01;91m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 alias ls='ls --color=auto'
 alias ll='ls -alF --color=auto'
 alias la='ls -A --color=auto'
@@ -24,21 +24,22 @@ Since petalinux user has no password, we need to adjust ssh settings to access o
 `PasswordAuthentication yes
 PermitEmptyPasswords yes`
 3. Restart sshd
-`sudo killall sshd
-/usr/sbin/sshd`
+```
+sudo killall sshd
+/usr/sbin/sshd
+```
 4. `ip a` to know your ip address, on eth0, inet 192.168....
 5. from a remote computer in the same network try to acccess
-`ssh petalinux@(zedboard IP)'
+`ssh petalinux@(zedboard IP)`
 6. Send date
-`ssh petalinux@(zedboard IP) sudo date -s @$(date -u +"%s")'
+`ssh petalinux@(zedboard IP) sudo date -s @$(date -u +"%s")`
 
 ## Clone this repo
-1. `git clone https://github.com/danielmartinezarias/fpga_lab_sprint.git'
+1. `git clone https://github.com/danielmartinezarias/fpga_lab_sprint.git`
 
 ## To automatically flash the bitstream after reboot
-1. `cp fpga_lab_sprint/bitstreams/startup_bitstream.sh .` copy script to your home directory
-2. `chmod +x startup_bitstream.sh`
-3. `sudo vi /etc/init.d/startup_bitstream.sh`
+
+1. `sudo vi /etc/init.d/startup_bitstream.sh`
 (Must be this)
 ```
 #!/bin/sh
@@ -52,8 +53,16 @@ PermitEmptyPasswords yes`
 ### END INIT INFO
 /home/petalinux/startup_bitstream.sh
 ```
-4. `sudo chmod +x /etc/init.d/startup_bitstream.sh`
-5. `sudo update-rc.d startup_bitstream.sh defaults`
+2. Run these lines
+```
+sudo sh -c 'echo "export FPGA_MODEL=ZedBoard" >> /etc/profile'
+cp fpga_lab_sprint/bitstreams/startup_bitstream.sh .
+chmod +x startup_bitstream.sh
+sudo chmod +x /etc/init.d/startup_bitstream.sh
+sudo update-rc.d startup_bitstream.sh defaults
+sudo reboot
+```
+## Install python packages
 
 
 
