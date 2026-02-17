@@ -5,3 +5,4 @@ vivado*
 __pycache__/
 *.jou
 *.wic
+python/results/

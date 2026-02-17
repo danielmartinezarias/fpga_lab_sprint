@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Deploy & Run on Zedboard",
+            "type": "shell",
+            "command": "scp ${file} zedboard:~/fpga_lab_sprint/python/scripts/${fileBasename} && ssh zedboard 'cd fpga_lab_sprint/python && FPGA_MODEL=ZedBoard sudo -E python3 scripts/${fileBasename}'",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "group": "build"
+        },
+        {
+            "label": "Download Results from Zedboard",
+            "type": "shell",
+            "command": "scp -r zedboard:~/fpga_lab_sprint/python/results/ZedBoard/ ${workspaceFolder}/python/results",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "group": "build"
+        }
+    ]
+}

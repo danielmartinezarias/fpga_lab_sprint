@@ -22,7 +22,8 @@ Since petalinux user has no password, we need to adjust ssh settings to access o
 1. `sudo vi /etc/ssh/sshd_config`
 2. Add this lines to the end (or uncomment and change the arg)
 `PasswordAuthentication yes
-PermitEmptyPasswords yes`
+PermitEmptyPasswords yes
+PermitUserEnvironment yes`
 3. Restart sshd
 ```
 sudo killall sshd
