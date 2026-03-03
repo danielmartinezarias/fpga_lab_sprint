@@ -70,3 +70,14 @@ sudo reboot
 
 
 Now the Zedboard should boot with the most recent bitstream and users can access to the Zedboard remotely 
+
+# ssh tunnel
+1. in your local system
+`vi ~/.ssh/config`
+add these lines, of course adjust HostName and ProxyJump as needed
+```
+Host zedboard
+  HostName 192.168.16.18
+  User petalinux
+  ProxyJump coder.fpga-lab-sprint
+```
