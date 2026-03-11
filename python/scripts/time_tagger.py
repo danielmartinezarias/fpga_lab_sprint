@@ -65,7 +65,8 @@ if __name__ == "__main__":
     parser.add_argument("--delays", type=list_of_ints, default=[-1, -1, -1, -1, -1, -1], help="delays")
     parser.add_argument("--log_level", type=str, default="INFO", help="loglevel")
 
-    args = defaults_parse_args(parser, sys.argv)
+    args = parser.parse_args()
+    
 
     print(args)
     time.sleep(1)

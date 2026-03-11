@@ -116,7 +116,7 @@ class ZynqBoard:
         self.write_mutex = threading.Lock()
 
         # load calibration data for different models
-        if board == "Zedboard":
+        if board == "Zedboard" or board == "TEST":
            self.config_calib_path = os.path.join(os.path.dirname(__file__), "config/calibration.json")
            self.address_offset = int(self.config["zynq_boards"]["Zedboard"]["address_offset"], 16)
            try:
@@ -134,7 +134,9 @@ class ZynqBoard:
         """
         if os.environ.get('FPGA_MODEL') == 'ZedBoard':
             return ZynqBoard.create_zedboard()
-        else: 
+        elif os.environ.get('FPGA_MODEL') == 'TEST':
+            return ZynqBoard.create_test()
+        else:
             model = os.getenv("FPGA_MODEL")
             if not model:
                 sys.exit("FPGA_MODEL not set — export FPGA_MODEL='ZedBoard' before running.")
@@ -142,6 +144,10 @@ class ZynqBoard:
     @staticmethod
     def create_zedboard():
         return ZynqBoard(board="Zedboard")
+    
+    @staticmethod
+    def create_test():
+        return ZynqBoard(board="TEST")
 
     def version(self):
         return self.read_addr(self.ADDRESSES("VERSION"))
@@ -153,27 +159,33 @@ class ZynqBoard:
         self.write_addr(self.ADDRESSES("TEST_REG"), a)
 
     def read_addr(self, addr: int, length=4):
-        addr_new = self.address_offset + addr*4
+        if board == "TEST":
+            val = 999
+        else:
+            addr_new = self.address_offset + addr*4
 
-        with self.read_mutex:
-            f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-            mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset=addr_new & ~MAP_MASK)
-            mem.seek(addr_new & MAP_MASK)
-            val = mem.read(length)
-            mem.close()
-            os.close(f)
+            with self.read_mutex:
+                f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
+                mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset=addr_new & ~MAP_MASK)
+                mem.seek(addr_new & MAP_MASK)
+                val = mem.read(length)
+                mem.close()
+                os.close(f)
         return int.from_bytes(val, byteorder='little')
 
     def write_addr_bytes(self, addr: int, value: bytes) -> int:
-        addr_new = self.address_offset + addr*4
-        with self.write_mutex:
-            f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-            mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,
-                            offset=addr_new & ~MAP_MASK)
-            mem.seek(self.address_offset + addr_new & MAP_MASK)
-            x = mem.write(value)
-            mem.close()
-            os.close(f)
+        if board != "TEST":
+            addr_new = self.address_offset + addr*4
+            with self.write_mutex:
+                f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
+                mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,
+                                offset=addr_new & ~MAP_MASK)
+                mem.seek(self.address_offset + addr_new & MAP_MASK)
+                x = mem.write(value)
+                mem.close()
+                os.close(f)
+        else:
+            x = value
         return x
 
     def write_addr(self, addr: int, value: int, length: int=4) -> int:
