@@ -385,7 +385,7 @@ class ZynqBoard:
             if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
                 zynq_log(f"Voltage {voltage} mV out of range!", level="ERROR")
                 raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
-            dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
+            dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))-1)
             # set CONTROL_DAC904 to continuous mode
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_CONTINUOUS"))
             self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
