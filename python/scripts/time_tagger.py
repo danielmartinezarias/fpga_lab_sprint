@@ -22,7 +22,7 @@ class TimeTagger:
         tt = self.timetagger.read_time_tagger()
         time_tag = {}
         int_time = int_time / 1000  # ms to s
-        c_win = c_win*27*10**(-12)  # NTaps(27ps each) to s
+        c_win = c_win/10**(-9)  # ns to s
         for channel, counts in tt.items():
             if channel.startswith("CC"):
                 sA = tt[f'C{channel[2]}']
@@ -59,10 +59,10 @@ if __name__ == "__main__":
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # parser.add_argument("--sleep", type=int, default=1, help="Waiting time between tests in seconds")
-    parser.add_argument("--s_win", type=int, default=100, help="Sampling window in ms")
-    parser.add_argument("--c_win", type=int, default=170, help="Coincidence window in ms")
-    parser.add_argument("--int_t", type=int, default=1000, help="Integration time in ms")
-    parser.add_argument("--delays", type=list_of_ints, default=[-1, -1, -1, -1, -1, -1], help="delays")
+    parser.add_argument("--s_win_ns", type=int, default=100, help="Sampling window in ns")
+    parser.add_argument("--c_win_ns", type=int, default=5, help="Coincidence window in ns")
+    parser.add_argument("--int_t_ms", type=int, default=1000, help="Integration time in ms")
+    parser.add_argument("--delays", type=list_of_ints, default=[-1, -1, -1, -1, -1, -1], help="delays in ns")
     parser.add_argument("--log_level", type=str, default="INFO", help="loglevel")
 
     args = parser.parse_args()
@@ -74,12 +74,12 @@ if __name__ == "__main__":
     measurement = None
     try:
         measurement = TimeTagger()
-        measurement.setExperiment(args.s_win, args.c_win, args.int_t, args.delays)
+        measurement.setExperiment(args.s_win_ns, args.c_win_ns, args.int_t_ms, args.delays)
         filename = (f"{time.time_ns()}_timetagger_data")
         zynq_setup_logging(filename)
         count = 0
         while True:
-            time_tags = measurement.readTimeTagger(args.c_win, args.int_t)
+            time_tags = measurement.readTimeTagger(args.c_win_ns, args.int_t_ms)
 
             all_data = { count :{
                     "time_tags": time_tags

@@ -218,12 +218,12 @@ class ZynqBoard:
             :param sampling_window_ns: Sampling Window in Nanoseconds default: -1 (taken from calibration)
             :param coin_window_ns: Coincidence Window in Nanoseconds default: -1 (taken from calibration)
             :param int_time_ms: Integration Time in Milliseconds default: -1 (taken from calibration)
-            :param delay0: Delay0: default: -1 (taken from calibration)
-            :param delay1: Delay1: default: -1 (taken from calibration)
-            :param delay2: Delay2: default: -1 (taken from calibration)
-            :param delay3: Delay3: default: -1 (taken from calibration)
-            :param delay4: Delay4: default: -1 (taken from calibration)
-            :param delay5: Delay5: default: -1 (taken from calibration)
+            :param delay0: Delay0 in Nanoseconds: default: -1 (taken from calibration)
+            :param delay1: Delay1 in Nanoseconds: default: -1 (taken from calibration)
+            :param delay2: Delay2 in Nanoseconds: default: -1 (taken from calibration)
+            :param delay3: Delay3 in Nanoseconds: default: -1 (taken from calibration)
+            :param delay4: Delay4 in Nanoseconds: default: -1 (taken from calibration)
+            :param delay5: Delay5 in Nanoseconds: default: -1 (taken from calibration)
             :return:
             """
 
@@ -240,27 +240,26 @@ class ZynqBoard:
             self.length = self.TTConfig["length"]
             self.clock_speed = self.TTConfig["clock_speed"]
 
-            self.sampling_window_ns = self.TTCalib["sampling_window_ns"] if sampling_window_ns < 0 else sampling_window_ns
-            self.coin_window_ns = self.TTCalib["coin_window_ns"] if coin_window_ns < 0 else coin_window_ns
-            self.full_int_time_ms = self.TTCalib["int_time_ms"] if int_time_ms < 0 else int_time_ms
+            self.sampling_window_ns = self.TTCalib["sampling_window_ns"] if sampling_window_ns < 0 else int(sampling_window_ns/ 10**9 * self.clock_speed)
+            self.coin_window_ns = self.TTCalib["coin_window_ns"] if coin_window_ns < 0 else int(coin_window_ns/27)*10**3  # convert from ns to number of NTaps (27ps each) and back to ns
+            self.full_int_time_ms = self.TTCalib["int_time_ms"] if int_time_ms < 0 else int(int_time_ms/1000*self.clock_speed)
             self.int_time_ms = self.TTConfig["max_int_time"]
 
-            self.delay0 = self.TTCalib["delay0"] if delay0 < 0 else delay0
-            self.delay1 = self.TTCalib["delay1"] if delay1 < 0 else delay1
-            self.delay2 = self.TTCalib["delay2"] if delay2 < 0 else delay2
-            self.delay3 = self.TTCalib["delay3"] if delay3 < 0 else delay3
-            self.delay4 = self.TTCalib["delay4"] if delay4 < 0 else delay4
-            self.delay5 = self.TTCalib["delay5"] if delay5 < 0 else delay5
+            self.delay0 = self.TTCalib["delay0"] if delay0 < 0 else int(delay0/27)*10**3
+            self.delay1 = self.TTCalib["delay1"] if delay1 < 0 else int(delay1/27)*10**3
+            self.delay2 = self.TTCalib["delay2"] if delay2 < 0 else int(delay2/27)*10**3
+            self.delay3 = self.TTCalib["delay3"] if delay3 < 0 else int(delay3/27)*10**3
+            self.delay4 = self.TTCalib["delay4"] if delay4 < 0 else int(delay4/27)*10**3
+            self.delay5 = self.TTCalib["delay5"] if delay5 < 0 else int(delay5/27)*10**3
 
             self.set_parameters()
 
         def set_parameters(self):
             # Set Parameters for the TimeTagger on FPGA
-            self.zynqboard.write_addr(self.ADDRESSES("SAMPLING_WINDOW"), int(self.sampling_window_ns / 10**9 *
-                                                                             self.clock_speed))
+            self.zynqboard.write_addr(self.ADDRESSES("SAMPLING_WINDOW"), self.sampling_window_ns)
             # TODO: Characterization by Dani
-            self.zynqboard.write_addr(self.ADDRESSES("COIN_WINDOW"), int(self.coin_window_ns))
-            self.zynqboard.write_addr(self.ADDRESSES("INT_TIME"), int(self.int_time_ms/1000*self.clock_speed))
+            self.zynqboard.write_addr(self.ADDRESSES("COIN_WINDOW"), self.coin_window_ns)
+            self.zynqboard.write_addr(self.ADDRESSES("INT_TIME"), self.int_time_ms)
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C0']}"), self.delay0)
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C1']}"), self.delay1)
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C2']}"), self.delay2)
