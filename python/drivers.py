@@ -159,33 +159,27 @@ class ZynqBoard:
         self.write_addr(self.ADDRESSES("TEST_REG"), a)
 
     def read_addr(self, addr: int, length=4):
-        if board == "TEST":
-            val = 999
-        else:
-            addr_new = self.address_offset + addr*4
+        addr_new = self.address_offset + addr*4
 
-            with self.read_mutex:
-                f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-                mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset=addr_new & ~MAP_MASK)
-                mem.seek(addr_new & MAP_MASK)
-                val = mem.read(length)
-                mem.close()
-                os.close(f)
+        with self.read_mutex:
+            f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
+            mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset=addr_new & ~MAP_MASK)
+            mem.seek(addr_new & MAP_MASK)
+            val = mem.read(length)
+            mem.close()
+            os.close(f)
         return int.from_bytes(val, byteorder='little')
 
     def write_addr_bytes(self, addr: int, value: bytes) -> int:
-        if board != "TEST":
-            addr_new = self.address_offset + addr*4
-            with self.write_mutex:
-                f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-                mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,
-                                offset=addr_new & ~MAP_MASK)
-                mem.seek(self.address_offset + addr_new & MAP_MASK)
-                x = mem.write(value)
-                mem.close()
-                os.close(f)
-        else:
-            x = value
+        addr_new = self.address_offset + addr*4
+        with self.write_mutex:
+            f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
+            mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,
+                            offset=addr_new & ~MAP_MASK)
+            mem.seek(self.address_offset + addr_new & MAP_MASK)
+            x = mem.write(value)
+            mem.close()
+            os.close(f)
         return x
 
     def write_addr(self, addr: int, value: int, length: int=4) -> int:
