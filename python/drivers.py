@@ -132,14 +132,18 @@ class ZynqBoard:
         """
         Creates board from environment variable "FPGA_MODEL"
         """
-        if os.environ.get('FPGA_MODEL') == 'ZedBoard':
-            return ZynqBoard.create_zedboard()
-        elif os.environ.get('FPGA_MODEL') == 'TEST':
-            return ZynqBoard.create_test()
+        # if os.environ.get('FPGA_MODEL') == 'ZedBoard':
+        #     return ZynqBoard.create_zedboard()
+        # elif os.environ.get('FPGA_MODEL') == 'TEST':
+        #     return ZynqBoard.create_test()
+        # else:
+        #     model = os.getenv("FPGA_MODEL")
+        #     if not model:
+        #         sys.exit("FPGA_MODEL not set — export FPGA_MODEL='ZedBoard' before running.")
+        if os.environ.get('FPGA_MODEL') in ['ZedBoard', 'TEST']:
+            return ZynqBoard.create_zedboard() if os.environ.get('FPGA_MODEL') == 'ZedBoard' else ZynqBoard.create_test()
         else:
-            model = os.getenv("FPGA_MODEL")
-            if not model:
-                sys.exit("FPGA_MODEL not set — export FPGA_MODEL='ZedBoard' before running.")
+            return ZynqBoard.create_zedboard()
 
     @staticmethod
     def create_zedboard():
