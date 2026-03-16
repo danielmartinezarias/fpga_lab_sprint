@@ -256,19 +256,21 @@ class ZynqBoard:
             self.delay4 = self.TTCalib["delay4"] if delay4 < 0 else delay4
             self.delay5 = self.TTCalib["delay5"] if delay5 < 0 else delay5
 
+            self.tap_to_ns = self.TTCalib["tap_to_ns"]
+
             self.set_parameters()
 
         def set_parameters(self):
             # Set Parameters for the TimeTagger on FPGA
             self.zynqboard.write_addr(self.ADDRESSES("SAMPLING_WINDOW"), int(self.sampling_window_ns / 10**9 * self.clock_speed))
-            self.zynqboard.write_addr(self.ADDRESSES("COIN_WINDOW"), int(self.coin_window_ns/27)*10**3)
-            self.zynqboard.write_addr(self.ADDRESSES("INT_TIME"), int(self.int_time_ms/1000*self.clock_speed))
-            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C0']}"), int(self.delay0/27)*10**3)
-            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C1']}"), int(self.delay1/27)*10**3)
-            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C2']}"), int(self.delay2/27)*10**3)
-            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C3']}"), int(self.delay3/27)*10**3)
-            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C4']}"), int(self.delay4/27)*10**3)
-            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C5']}"), int(self.delay5/27)*10**3)
+            self.zynqboard.write_addr(self.ADDRESSES("COIN_WINDOW"), int(self.coin_window_ns / self.tap_to_ns)) # 
+            self.zynqboard.write_addr(self.ADDRESSES("INT_TIME"), int(self.int_time_ms / 10**3 * self.clock_speed))
+            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C0']}"), int(self.delay0 / self.tap_to_ns))
+            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C1']}"), int(self.delay1 / self.tap_to_ns))
+            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C2']}"), int(self.delay2 / self.tap_to_ns))
+            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C3']}"), int(self.delay3 / self.tap_to_ns))
+            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C4']}"), int(self.delay4 / self.tap_to_ns))
+            self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C5']}"), int(self.delay5 / self.tap_to_ns))
 
 
 

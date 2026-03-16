@@ -7,9 +7,10 @@
       "delay4": 0,
       "delay5": 0,
       "int_time_ms": 1000,
-      "coin_window_ns": 170,
+      "coin_window_ns": 5,
       "sampling_window_ns": 100,
       "extra_sleep": 10,
+      "tap_to_ns": 0.027,
       "channel_mapping": {
         "__comment": "Mapping of TT channels to Chip Channels",
         "TT_C0": 0,
