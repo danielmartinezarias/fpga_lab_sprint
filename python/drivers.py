@@ -271,6 +271,7 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C3']}"), int(self.delay3 / self.tap_to_ns))
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C4']}"), int(self.delay4 / self.tap_to_ns))
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C5']}"), int(self.delay5 / self.tap_to_ns))
+            print(f"Coincidence Window Taps: {int(self.coin_window_ns / self.tap_to_ns)}")
 
 
 

@@ -22,7 +22,7 @@ class TimeTagger:
         tt = self.timetagger.read_time_tagger()
         time_tag = {}
         int_time = int_time / 1000  # ms to s
-        c_win = c_win/10**(-9)  # ns to s
+        c_win = c_win/10**(9)  # ns to s
         for channel, counts in tt.items():
             if channel.startswith("CC"):
                 sA = tt[f'C{channel[2]}']
