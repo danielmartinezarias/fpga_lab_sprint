@@ -184,6 +184,7 @@ class ZynqBoard:
             x = mem.write(value)
             mem.close()
             os.close(f)
+            time.sleep(0.001)
         return x
 
     def write_addr(self, addr: int, value: int, length: int=4) -> int:
@@ -303,7 +304,7 @@ class ZynqBoard:
             ret = {}
             while int_time < self.full_int_time_ms:
                 self.int_time_ms = min(self.full_int_time_ms - int_time, self.TTConfig["max_int_time"])
-                self.set_parameters()
+                # self.set_parameters()
                 int_time += self.int_time_ms
 
                 self.reset_fsm()               
