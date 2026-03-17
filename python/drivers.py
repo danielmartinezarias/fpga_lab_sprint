@@ -189,8 +189,8 @@ class ZynqBoard:
     def write_addr(self, addr: int, value: int, length: int=4) -> int:
         return self.write_addr_bytes(addr, value.to_bytes(length, byteorder='little'))
     
-    def get_timetagger(self, sampling_window_ns: int=-1, coin_window_ns: int=-1, int_time_ms: int=-1,
-                    delay0 :int=-1, delay1: int=-1, delay2: int=-1, delay3: int=-1, delay4: int=-1, delay5: int=-1):
+    def get_timetagger(self, sampling_window_ns: float=-1, coin_window_ns: float=-1, int_time_ms: float=-1,
+                    delay0 :float=-1, delay1: float=-1, delay2: float=-1, delay3: float=-1, delay4: float=-1, delay5: float=-1):
         """ Returns an instance of the TimeTagger
         :param sampling_window_ns: Sampling Window in Nanoseconds
         :param coin_window_ns: Coincidence Window in Nanoseconds
@@ -216,8 +216,8 @@ class ZynqBoard:
 
     class _TimeTagger:
         def __init__(self, zynqboard,
-                     sampling_window_ns: int=-1, coin_window_ns: int=-1, int_time_ms: int=-1,
-                     delay0 :int=-1, delay1: int=-1, delay2: int=-1, delay3: int=-1, delay4: int=-1, delay5: int=-1):
+                     sampling_window_ns: float=-1, coin_window_ns: float=-1, int_time_ms: float=-1,
+                     delay0 :float=-1, delay1: float=-1, delay2: float=-1, delay3: float=-1, delay4: float=-1, delay5: float=-1):
             """ Returns an instance of the TimeTagger
             :param sampling_window_ns: Sampling Window in Nanoseconds default: -1 (taken from calibration)
             :param coin_window_ns: Coincidence Window in Nanoseconds default: -1 (taken from calibration)
@@ -271,7 +271,6 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C3']}"), int(self.delay3 / self.tap_to_ns))
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C4']}"), int(self.delay4 / self.tap_to_ns))
             self.zynqboard.write_addr(self.ADDRESSES(f"DELAY{self.CHANNEL_MAPPING['TT_C5']}"), int(self.delay5 / self.tap_to_ns))
-            print(f"Coincidence Window Taps: {int(self.coin_window_ns / self.tap_to_ns)}")
 
 
 

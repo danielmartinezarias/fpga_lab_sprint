@@ -1,8 +1,8 @@
 import sys
-sys.path.append('.')
 import os
 import pprint
 import time
+sys.path.append('/home/petalinux/fpga_lab_sprint/python')
 from drivers import *
 import json
 import argparse
@@ -59,10 +59,10 @@ if __name__ == "__main__":
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # parser.add_argument("--sleep", type=int, default=1, help="Waiting time between tests in seconds")
-    parser.add_argument("--s_win_ns", type=int, default=100, help="Sampling window in ns")
-    parser.add_argument("--c_win_ns", type=int, default=5, help="Coincidence window in ns")
-    parser.add_argument("--int_t_ms", type=int, default=1000, help="Integration time in ms")
-    parser.add_argument("--delays", type=list_of_ints, default=[-1, -1, -1, -1, -1, -1], help="delays in ns")
+    parser.add_argument("--s_win_ns", type=float, default=100, help="Sampling window in ns")
+    parser.add_argument("--c_win_ns", type=float, default=5, help="Coincidence window in ns")
+    parser.add_argument("--int_t_ms", type=float, default=1000, help="Integration time in ms")
+    parser.add_argument("--delays", type=list_of_floats, default=[-1, -1, -1, -1, -1, -1], help="delays in ns")
     parser.add_argument("--log_level", type=str, default="INFO", help="loglevel")
 
     args = parser.parse_args()
