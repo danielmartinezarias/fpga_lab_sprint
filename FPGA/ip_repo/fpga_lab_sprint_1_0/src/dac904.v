@@ -36,7 +36,7 @@ always @ (posedge clk) begin
         
         0:begin
             case(control)
-                0:begin //steady
+                0:begin //continuous
                     fsm <= 1;
                 end
                 1:begin //ramp

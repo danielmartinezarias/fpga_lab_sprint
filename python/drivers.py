@@ -380,6 +380,16 @@ class ZynqBoard:
                 zynq_log(f"Voltage {voltage} mV out of range!", level="ERROR")
                 raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
             dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
-            zynq_log(f"Setting DAC904 to {voltage} mV (DAC value: {dac_value})", level="INFO")
+            # set CONTROL_DAC904 to continuous mode
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_CONTINUOUS"))
             self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
+            zynq_log(f"Setting DAC904 to {voltage} mV (DAC value: {dac_value}) in continuous mode", level="INFO")
 
+        def reset_dac904(self):
+            """ Reset the DAC904 to 0 mV """
+            self.set_dac904_voltage(0)
+        
+        def ramp_dac904(self):
+            """ Ramp the DAC904 from min to max voltage """
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
+            zynq_log(f"Ramping DAC904 from {self.DACCalib['min_voltage']} mV to {self.DACCalib['max_voltage']} mV", level="INFO")
