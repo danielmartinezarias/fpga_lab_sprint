@@ -374,12 +374,12 @@ class ZynqBoard:
         
         def set_dac904_voltage(self, voltage: float):
             """ Set the output voltage of the DAC904
-            :param voltage: Voltage in Volts
+            :param voltage: Voltage in millivolts
             """
             if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
-                zynq_log(f"Voltage {voltage} V out of range!", level="ERROR")
-                raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} V")
+                zynq_log(f"Voltage {voltage} mV out of range!", level="ERROR")
+                raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
             dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
-            zynq_log(f"Setting DAC904 to {voltage} V (DAC value: {dac_value})", level="INFO")
+            zynq_log(f"Setting DAC904 to {voltage} mV (DAC value: {dac_value})", level="INFO")
             self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
 

@@ -22,8 +22,8 @@
       }
     },
     "dac904": {
-      "min_voltage": -3,
-      "max_voltage": 3,
+      "min_voltage": -3000,
+      "max_voltage": 3000,
       "default_voltage": 0,
       "resolution": 14
     }
