@@ -25,6 +25,9 @@
       "min_voltage": -3000,
       "max_voltage": 3000,
       "default_voltage": 0,
-      "resolution": 14
+      "resolution": 14,
+      "pulse_high_width_ns": 100,
+      "pulse_low_width_ns": 100,
+      "dac904_clk": 100000000
     }
 }

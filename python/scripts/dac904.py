@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test DAC904.",
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--voltage', type=int, default=0, help='DAC Voltage in mV (-3000 to 3000)')
-    parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off'], help='Operation mode')
+    parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary'], help='Operation mode')
     args = parser.parse_args()
     print(args)
     time.sleep(1)

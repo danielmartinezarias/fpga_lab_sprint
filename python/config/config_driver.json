@@ -65,7 +65,8 @@
         "values": {
             "DATA_DAC904": "0x1FFF",      
             "CONTROL_DAC904_CONTINUOUS": "0x0",
-            "CONTROL_DAC904_RAMP": "0x1"
+            "CONTROL_DAC904_RAMP": "0x1",
+            "CONTROL_DAC904_PULSE_BINARY": "0x2"
         }
     }
 }

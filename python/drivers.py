@@ -393,3 +393,24 @@ class ZynqBoard:
             """ Ramp the DAC904 from min to max voltage """
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
             zynq_log(f"Ramping DAC904 from {self.DACCalib['min_voltage']} mV to {self.DACCalib['max_voltage']} mV", level="INFO")
+        
+        def pulse_binary_dac904(self, voltage: float, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
+            """ Pulse the DAC904 with the given voltage and pulse widths
+            :param voltage: Voltage in millivolts
+            :param pulse_high_width_ns: Pulse high width in nanoseconds (default: calibration value)
+            :param pulse_low_width_ns: Pulse low width in nanoseconds (default: calibration value)
+            """
+            if pulse_high_width_ns is None:
+                pulse_high_width_ns = self.DACCalib["pulse_high_width_ns"]
+            if pulse_low_width_ns is None:
+                pulse_low_width_ns = self.DACCalib["pulse_low_width_ns"]
+            if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
+                zynq_log(f"Voltage {voltage} mV out of range!", level="ERROR")
+                raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
+            dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
+            # set CONTROL_DAC904 to pulse binary mode
+            self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(pulse_high_width_ns / (1e9 / self.self.DACCalib["dac904_clk"])))
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_LOW_WIDTH"), int(pulse_low_width_ns / (1e9 / self.self.DACCalib["dac904_clk"])))
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_PULSE_BINARY"))
+            zynq_log(f"Pulsing DAC904 with {voltage} mV (DAC value: {dac_value}), high width: {pulse_high_width_ns} ns, low width: {pulse_low_width_ns} ns", level="INFO")
