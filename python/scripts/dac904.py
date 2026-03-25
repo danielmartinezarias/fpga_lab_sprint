@@ -28,16 +28,16 @@ if __name__ == "__main__":
         measurement = DAC904()
         match args.mode:
             case 'single':
-                measurement.dac904.set_dac904_voltage(args.voltage)
+                measurement.dac904.set_voltage(args.voltage)
                 print(f'Set DAC value to {args.voltage} mV')
             case 'ramp_on':
-                measurement.dac904.ramp_dac904()
+                measurement.dac904.ramp()
                 print('Ramping DAC voltage from -3000 mV to 3000 mV')
             case 'ramp_off':
-                measurement.dac904.reset_dac904()
+                measurement.dac904.reset()
                 print('Resetting DAC voltage to 0 mV')
             case 'pulse_binary':
-                measurement.dac904.pulse_dac904(args.voltage, args.pulse_high_width_ns, args.pulse_low_width_ns)
+                measurement.dac904.pulse_binary(args.voltage, args.pulse_high_width_ns, args.pulse_low_width_ns)
                 print(f'Pulsing DAC with {args.voltage} mV, high width: {args.pulse_high_width_ns} ns, low width: {args.pulse_low_width_ns} ns')
     except Exception as e:
         print(f'Error: {e}')

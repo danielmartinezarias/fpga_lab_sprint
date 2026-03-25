@@ -372,7 +372,7 @@ class ZynqBoard:
             self.ADDRESSES = lambda addr: int(self.DACConfig["addresses"][addr], 16)
             self.VALUES = lambda value: int(self.DACConfig["values"][value], 16)
         
-        def set_dac904_voltage(self, voltage: float):
+        def set_voltage(self, voltage: float):
             """ Set the output voltage of the DAC904
             :param voltage: Voltage in millivolts
             """
@@ -385,16 +385,16 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
             zynq_log(f"Setting DAC904 to {voltage} mV (DAC value: {dac_value}) in continuous mode", level="INFO")
 
-        def reset_dac904(self):
+        def reset(self):
             """ Reset the DAC904 to 0 mV """
-            self.set_dac904_voltage(0)
+            self.set_voltage(0)
         
-        def ramp_dac904(self):
+        def ramp(self):
             """ Ramp the DAC904 from min to max voltage """
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
             zynq_log(f"Ramping DAC904 from {self.DACCalib['min_voltage']} mV to {self.DACCalib['max_voltage']} mV", level="INFO")
         
-        def pulse_binary_dac904(self, voltage: float, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
+        def pulse_binary(self, voltage: float, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
             """ Pulse the DAC904 with the given voltage and pulse widths
             :param voltage: Voltage in millivolts
             :param pulse_high_width_ns: Pulse high width in nanoseconds (default: calibration value)
