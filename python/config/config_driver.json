@@ -60,7 +60,9 @@
     "dac904": {
         "addresses": {
             "DATA_DAC904": "0x21",
-            "CONTROL_DAC904": "0x22"
+            "CONTROL_DAC904": "0x22",
+            "PULSE_HIGH_WIDTH": "0x26",
+            "PULSE_LOW_WIDTH": "0x27"
         },
         "values": {
             "DATA_DAC904": "0x1FFF",      
