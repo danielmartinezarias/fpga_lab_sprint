@@ -17,6 +17,8 @@ if __name__ == "__main__":
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--voltage', type=int, default=0, help='DAC Voltage in mV (-3000 to 3000)')
     parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary'], help='Operation mode')
+    parser.add_argument('--pulse_high_width_ns', type=int, default=100, help='Pulse high width in ns (only for pulse_binary mode)')
+    parser.add_argument('--pulse_low_width_ns', type=int, default=100, help='Pulse low width in ns (only for pulse_binary mode)')
     args = parser.parse_args()
     print(args)
     time.sleep(1)
@@ -34,6 +36,9 @@ if __name__ == "__main__":
             case 'ramp_off':
                 measurement.dac904.reset_dac904()
                 print('Resetting DAC voltage to 0 mV')
+            case 'pulse_binary':
+                measurement.dac904.pulse_dac904(args.voltage, args.pulse_high_width_ns, args.pulse_low_width_ns)
+                print(f'Pulsing DAC with {args.voltage} mV, high width: {args.pulse_high_width_ns} ns, low width: {args.pulse_low_width_ns} ns')
     except Exception as e:
         print(f'Error: {e}')
         traceback.print_exc()
