@@ -95,8 +95,13 @@
     wire [31:0] CC_35;
     wire [31:0] CC_45;
     //dac904
-    wire [13:0] data_dac904;
-    wire [7:0] control_dac904;
+    wire [13:0] dac904_data;
+    wire [7:0] dac904_control;
+    wire [7:0] dac904_n_states;
+    wire [7:0] dac904_memindex;
+    wire dac904_write2mem;
+    wire [31:0] dac904_high_width;
+    wire [31:0] dac904_low_width;
     // version and test
     wire master_reset;
     wire [7:0] test_reg;
@@ -155,8 +160,13 @@
 
     dac904 dac904_inst(
         .clk(clk_100MHz),
-        .control(control_dac904),
-        .data(data_dac904),
+        .control(dac904_control),
+        .data(dac904_data),
+        .n_states(dac904_n_states),
+        .memindex_write(dac904_memindex),
+        .write2mem(dac904_write2mem),
+        .high_width(dac904_high_width),
+        .low_width(dac904_low_width),
         .dac_in(gpio_breakout[19:6]),
         .clk_out(gpio_breakout[20])
     );
@@ -204,8 +214,13 @@
         .CC_35(CC_35),
         .CC_45(CC_45),
         //dac904
-        .data_dac904(data_dac904),
-        .control_dac904(control_dac904),
+        .dac904_data(dac904_data),
+        .dac904_control(dac904_control),
+        .dac904_n_states(dac904_n_states),
+        .dac904_memindex(dac904_memindex),
+        .dac904_write2mem(dac904_write2mem),
+        .dac904_high_width(dac904_high_width),
+        .dac904_low_width(dac904_low_width),
         // version and test
         .master_reset(master_reset),
         .test_reg(test_reg),

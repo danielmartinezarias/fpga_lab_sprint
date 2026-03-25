@@ -52,14 +52,20 @@
         input wire [31:0] CC_35,
         input wire [31:0] CC_45,
 		//dac904
-		output reg [13:0] data_dac904 = 14'b01_1111_1111_1111,
-		output reg [7:0] control_dac904 = 8'd0,
+		output reg [13:0] dac904_data = 14'b01_1111_1111_1111,
+		output reg [7:0] dac904_control = 8'd0,
+		output reg [7:0] dac904_n_states = 8'd0,
+		output reg [7:0] dac904_memindex = 8'd0,
+		output reg dac904_write2mem = 1'b0,
+		output reg [31:0] dac904_high_width = 32'd200000, // 200000 clk cycles = 1ms at 200MHz
+		output reg [31:0] dac904_low_width = 32'd200000, // 200000 clk cycles = 1ms at 200MHz
 		// version and test
 		output reg master_reset = 1'd0,
 		output reg [31:0] test_reg = 32'd1234567,
 		// v03 2025-01-08 DMA: fix dac904 wiring
 		// v04 2026-03-03 DMA: lvcmos18 for bank 34 dn 35 test
-		output reg [7:0] version = 8'd4,
+		// v05 2026-03-24 DMA: dac204 pulses
+		output reg [7:0] version = 8'd5,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -2972,13 +2978,13 @@
 	        8'h1E   : reg_data_out <= CC_34;
 	        8'h1F   : reg_data_out <= CC_35;
 	        8'h20   : reg_data_out <= CC_45;
-	        8'h21   : reg_data_out <= {18'd0,data_dac904};
-	        8'h22   : reg_data_out <= {24'd0,control_dac904};
-	        8'h23   : reg_data_out <= slv_reg35;
-	        8'h24   : reg_data_out <= slv_reg36;
-	        8'h25   : reg_data_out <= slv_reg37;
-	        8'h26   : reg_data_out <= slv_reg38;
-	        8'h27   : reg_data_out <= slv_reg39;
+	        8'h21   : reg_data_out <= {18'd0,dac904_data};
+	        8'h22   : reg_data_out <= {24'd0,dac904_control};
+	        8'h23   : reg_data_out <= {24'd0,dac904_n_states};
+	        8'h24   : reg_data_out <= {24'd0,dac904_memindex};
+	        8'h25   : reg_data_out <= {31'd0,dac904_write2mem};
+	        8'h26   : reg_data_out <= dac904_high_width;
+	        8'h27   : reg_data_out <= dac904_low_width;
 	        8'h28   : reg_data_out <= slv_reg40;
 	        8'h29   : reg_data_out <= slv_reg41;
 	        8'h2A   : reg_data_out <= slv_reg42;
@@ -3261,13 +3267,13 @@
 	        // 8'h1E   : replace_this_reg <= slv_reg30; // CC_34
 	        // 8'h1F   : replace_this_reg <= slv_reg31; // CC_35
 	        // 8'h20   : replace_this_reg <= slv_reg32; // CC_45
-	        8'h21   : data_dac904 <= slv_reg33[13:0];
-	        8'h22   : control_dac904 <= slv_reg34[7:0];
-	        // 8'h23   : replace_this_reg <= slv_reg35;
-	        // 8'h24   : replace_this_reg <= slv_reg36;
-	        // 8'h25   : replace_this_reg <= slv_reg37;
-	        // 8'h26   : replace_this_reg <= slv_reg38;
-	        // 8'h27   : replace_this_reg <= slv_reg39;
+	        8'h21   : dac904_data <= slv_reg33[13:0];
+	        8'h22   : dac904_control <= slv_reg34[7:0];
+	        8'h23   : dac904_n_states <= slv_reg35[7:0];
+	        8'h24   : dac904_memindex <= slv_reg36[7:0];
+	        8'h25   : dac904_write2mem <= 1'b1; // flag
+	        8'h26   : dac904_high_width <= slv_reg38;
+	        8'h27   : dac904_low_width <= slv_reg39;
 	        // 8'h28   : replace_this_reg <= slv_reg40;
 	        // 8'h29   : replace_this_reg <= slv_reg41;
 	        // 8'h2A   : replace_this_reg <= slv_reg42;
@@ -3490,6 +3496,7 @@
             startTT				<= 1'b0;
 			reset_TT			<= 1'b0;
 			master_reset		<= 1'b0;
+			dac904_write2mem	<= 1'b0;
         end
     end
     
