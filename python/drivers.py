@@ -371,6 +371,12 @@ class ZynqBoard:
 
             self.ADDRESSES = lambda addr: int(self.DACConfig["addresses"][addr], 16)
             self.VALUES = lambda value: int(self.DACConfig["values"][value], 16)
+
+        def turn_off(self):
+            """ Turn off the DAC904 by setting it to 0 mV and disabling the output """
+            self.set_voltage(0)
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_OFF"))
+            zynq_log("Turning off DAC904 (setting to 0 mV and disabling output)", level="INFO")
         
         def set_voltage(self, voltage: float):
             """ Set the output voltage of the DAC904
@@ -410,7 +416,41 @@ class ZynqBoard:
             dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
             # set CONTROL_DAC904 to pulse binary mode
             self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
-            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(pulse_high_width_ns / (1e9 / self.self.DACCalib["dac904_clk"])))
-            self.zynqboard.write_addr(self.ADDRESSES("PULSE_LOW_WIDTH"), int(pulse_low_width_ns / (1e9 / self.self.DACCalib["dac904_clk"])))
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(pulse_high_width_ns / (1e9 / self.DACCalib["dac904_clk"])))
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_LOW_WIDTH"), int(pulse_low_width_ns / (1e9 / self.DACCalib["dac904_clk"])))
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_PULSE_BINARY"))
             zynq_log(f"Pulsing DAC904 with {voltage} mV (DAC value: {dac_value}), high width: {pulse_high_width_ns} ns, low width: {pulse_low_width_ns} ns", level="INFO")
+
+        def load_pulse_memory(self, pulse_sequence: list):
+            """ Load a pulse sequence into the DAC904 pulse memory
+            :param pulse_sequence: List of voltags in mV,
+            """
+            # write the length of the pulse sequence to the FPGA
+            self.zynqboard.write_addr(self.ADDRESSES("N_STATES"), len(pulse_sequence))
+            # write the pulse sequence to the FPGA
+            for i, voltage in enumerate(pulse_sequence):
+                if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
+                    zynq_log(f"Voltage {voltage} mV out of range!", level="ERROR")
+                    raise ValueError(f"Voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
+                dac_value = int(voltage / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1)))
+                self.zynqboard.write_addr(self.ADDRESSES("MEMORY_ADDR"), i)
+                self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
+                self.zynqboard.write_addr(self.ADDRESSES("WRITE_ENABLE"), 1)
+                zynq_log(f"Loading pulse {i} into DAC904 pulse memory with voltage {voltage} mV (DAC value: {dac_value})", level="INFO")
+
+        def pulse_memory(self, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
+            """ Pulse the DAC904 with the loaded pulse sequence in memory
+            :param pulse_high_width_ns: Pulse high width in nanoseconds (default: calibration value)
+            :param pulse_low_width_ns: Pulse low width in nanoseconds (default: calibration value)
+            """
+            if pulse_high_width_ns is None:
+                pulse_high_width_ns = self.DACCalib["pulse_high_width_ns"]
+            if pulse_low_width_ns is None:
+                pulse_low_width_ns = self.DACCalib["pulse_low_width_ns"]
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(pulse_high_width_ns / (1e9 / self.DACCalib["dac904_clk"])))
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_LOW_WIDTH"), int(pulse_low_width_ns / (1e9 / self.DACCalib["dac904_clk"])))
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_PULSE_MEMORY"))
+            zynq_log(f"Pulsing DAC904 with loaded pulse memory, high width: {pulse_high_width_ns} ns, low width: {pulse_low_width_ns} ns", level="INFO")
+
+
+

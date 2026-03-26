@@ -16,9 +16,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test DAC904.",
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--voltage', type=int, default=0, help='DAC Voltage in mV (-3000 to 3000)')
-    parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary'], help='Operation mode')
+    parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary','pulse_memory'], help='Operation mode')
     parser.add_argument('--pulse_high_width_ns', type=int, default=100, help='Pulse high width in ns (only for pulse_binary mode)')
     parser.add_argument('--pulse_low_width_ns', type=int, default=100, help='Pulse low width in ns (only for pulse_binary mode)')
+    parser.add_argument('--load_memory', action='store_true', help='Load pulse sequence from config/dac_memory.json into DAC pulse memory (only for pulse_memory mode)')
     args = parser.parse_args()
     print(args)
     time.sleep(1)
@@ -39,6 +40,15 @@ if __name__ == "__main__":
             case 'pulse_binary':
                 measurement.dac904.pulse_binary(args.voltage, args.pulse_high_width_ns, args.pulse_low_width_ns)
                 print(f'Pulsing DAC with {args.voltage} mV, high width: {args.pulse_high_width_ns} ns, low width: {args.pulse_low_width_ns} ns')
+            case 'pulse_memory':
+                if args.load_memory:
+                    with open('config/dac_memory.json', 'r') as f:
+                        pulse_sequence = json.load(f)
+                        measurement.dac904.load_pulse_memory(pulse_sequence)
+                        print(f'Loaded pulse sequence from config/dac_memory.json into DAC pulse memory: {pulse_sequence}')
+                measurement.dac904.pulse_memory(args.pulse_high_width_ns, args.pulse_low_width_ns)
+                print(f'Pulsing DAC with pulse sequence from memory, high width: {args.pulse_high_width_ns} ns, low width: {args.pulse_low_width_ns} ns')
+
     except Exception as e:
         print(f'Error: {e}')
         traceback.print_exc()
