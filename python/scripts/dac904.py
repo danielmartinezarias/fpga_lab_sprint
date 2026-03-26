@@ -49,7 +49,7 @@ if __name__ == "__main__":
                 measurement.dac904.pulse_memory(args.pulse_high_width_ns, args.pulse_low_width_ns)
                 print(f'Pulsing DAC with pulse sequence from memory, high width: {args.pulse_high_width_ns} ns, low width: {args.pulse_low_width_ns} ns')
             case 'off':
-                measurement.dac904.off()
+                measurement.dac904.turn_off()
                 print('Turning off DAC output')
 
     except Exception as e:
