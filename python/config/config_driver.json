@@ -78,8 +78,8 @@
             "CONTROL_DAC904_OFF": "0xFF",
             "CONTROL_DAC904_PULSE_MEMORY": "0x3",
             "RAMP_STEP": "0x1",
-            "RAMP_MAX": "0x0800", 
-            "RAMP_MIN": "0x1000"  
+            "RAMP_MAX": "0x1111", 
+            "RAMP_MIN": "0x2EEE"  
         }
     }
 }
