@@ -17,6 +17,9 @@ if __name__ == "__main__":
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--voltage', type=int, default=0, help='DAC Voltage in mV (-3000 to 3000)')
     parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary','pulse_memory','off'], help='Operation mode')
+    parser.add_argument('--ramp_step_mv', type=int, default=1, help='Ramp step in mV (only for ramp_on mode)')
+    parser.add_argument('--ramp_max_mv', type=int, default=1400, help='Ramp max voltage in mV (only for ramp_on mode)')
+    parser.add_argument('--ramp_min_mv', type=int, default=-1400, help='Ramp min voltage in mV (only for ramp_on mode)')
     parser.add_argument('--pulse_high_width_ns', type=int, default=100, help='Pulse high width in ns (only for pulse_binary mode)')
     parser.add_argument('--pulse_low_width_ns', type=int, default=100, help='Pulse low width in ns (only for pulse_binary mode)')
     parser.add_argument('--load_memory', action='store_true', help='Load pulse sequence from config/dac_memory.json into DAC pulse memory (only for pulse_memory mode)')
@@ -32,7 +35,7 @@ if __name__ == "__main__":
                 voltage, dac_value = measurement.dac904.set_voltage(args.voltage)
                 print(f'Set DAC value to {voltage} mV, DAC value {dac_value}')
             case 'ramp_on':
-                measurement.dac904.ramp()
+                measurement.dac904.ramp(args.ramp_step_mv, args.ramp_max_mv, args.ramp_min_mv)
                 print('Ramping DAC voltage from -3000 mV to 3000 mV')
             case 'ramp_off':
                 measurement.dac904.reset()

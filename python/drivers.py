@@ -396,8 +396,14 @@ class ZynqBoard:
             """ Reset the DAC904 to 0 mV """
             self.set_voltage(0)
         
-        def ramp(self):
+        def ramp(self, step_size_mv: float=None, max_voltage_mv: float=None, min_voltage_mv: float=None):
             """ Ramp the DAC904 from min to max voltage """
+            if step_size_mv is not None:
+                self.zynqboard.write_addr(self.ADDRESSES("RAMP_STEP"), int(step_size_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"]))
+            if max_voltage_mv is not None:
+                self.zynqboard.write_addr(self.ADDRESSES("RAMP_MAX"), int(max_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
+            if min_voltage_mv is not None:
+                self.zynqboard.write_addr(self.ADDRESSES("RAMP_MIN"), int(min_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
             zynq_log(f"Ramping DAC904 from {self.DACCalib['min_voltage']} mV to {self.DACCalib['max_voltage']} mV", level="INFO")
         
