@@ -410,7 +410,7 @@ class ZynqBoard:
                 zynq_log(f"Max voltage {max_voltage_mv} mV must be greater than min voltage {min_voltage_mv} mV!", level="ERROR")
                 raise ValueError(f"Max voltage must be greater than min voltage!")
             if step_size_mv is not None:
-                self.zynqboard.write_addr(self.ADDRESSES("RAMP_STEP"), int(step_size_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"]))
+                self.zynqboard.write_addr(self.ADDRESSES("RAMP_STEP"), int(step_size_mv / (-self.DACCalib["min_voltage"] + self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"]))
             if max_voltage_mv is not None:
                 self.zynqboard.write_addr(self.ADDRESSES("RAMP_MAX"), int(max_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
             if min_voltage_mv is not None:
