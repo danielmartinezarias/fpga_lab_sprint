@@ -102,6 +102,9 @@
     wire dac904_write2mem;
     wire [31:0] dac904_high_width;
     wire [31:0] dac904_low_width;
+    wire [13:0] dac904_ramp_step;
+    wire [13:0] dac904_ramp_max;
+    wire [13:0] dac904_ramp_min;
     // version and test
     wire master_reset;
     wire [7:0] test_reg;
@@ -167,6 +170,9 @@
         .write2mem(dac904_write2mem),
         .high_width(dac904_high_width),
         .low_width(dac904_low_width),
+        .ramp_step(dac904_ramp_step),
+        .ramp_max(dac904_ramp_max),
+        .ramp_min(dac904_ramp_min),
         .dac_in(gpio_breakout[19:6]),
         .clk_out(gpio_breakout[20])
     );
@@ -221,6 +227,9 @@
         .dac904_write2mem(dac904_write2mem),
         .dac904_high_width(dac904_high_width),
         .dac904_low_width(dac904_low_width),
+        .dac904_ramp_step(dac904_ramp_step),
+        .dac904_ramp_max(dac904_ramp_max),
+        .dac904_ramp_min(dac904_ramp_min),
         // version and test
         .master_reset(master_reset),
         .test_reg(test_reg),

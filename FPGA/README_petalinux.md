@@ -186,6 +186,7 @@ DISTRO='petalinux' petalinux-build --project $PROJECT_NAME/
 ```
 petalinux-package --boot --format BIN --fsbl $PROJECT_NAME/images/linux/zynq_fsbl.elf --u-boot --project $PROJECT_NAME
 ```
+Francesco suggested to include --fpga $PROJECT_NAME/images/linux/system.bit
 
 9. Create SD card files
 ```

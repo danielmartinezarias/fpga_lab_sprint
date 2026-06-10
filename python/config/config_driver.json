@@ -65,7 +65,10 @@
             "MEMORY_ADDR": "0x24",
             "WRITE_ENABLE": "0x25",
             "PULSE_HIGH_WIDTH": "0x26",
-            "PULSE_LOW_WIDTH": "0x27"
+            "PULSE_LOW_WIDTH": "0x27",
+            "RAMP_STEP": "0x28",
+            "RAMP_MAX": "0x29",
+            "RAMP_MIN": "0x2A"
         },
         "values": {
             "DATA_DAC904": "0x1FFF",      
@@ -73,7 +76,10 @@
             "CONTROL_DAC904_RAMP": "0x1",
             "CONTROL_DAC904_PULSE_BINARY": "0x2",
             "CONTROL_DAC904_OFF": "0xFF",
-            "CONTROL_DAC904_PULSE_MEMORY": "0x3"
+            "CONTROL_DAC904_PULSE_MEMORY": "0x3",
+            "RAMP_STEP": "0x1",
+            "RAMP_MAX": "0x0800", 
+            "RAMP_MIN": "0x1000"  
         }
     }
 }

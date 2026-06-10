@@ -59,13 +59,17 @@
 		output reg dac904_write2mem = 1'b0,
 		output reg [31:0] dac904_high_width = 32'd200000, // 200000 clk cycles = 1ms at 200MHz
 		output reg [31:0] dac904_low_width = 32'd200000, // 200000 clk cycles = 1ms at 200MHz
+		output reg [13:0] dac904_ramp_step = 14'd1, // step size for ramp mode
+		output reg [13:0] dac904_ramp_max = 14'b01_0000_0000_0000, // max value for ramp mode
+		output reg [13:0] dac904_ramp_min = 14'b10_1111_1111_1111, // min value for ramp mode
 		// version and test
 		output reg master_reset = 1'd0,
 		output reg [31:0] test_reg = 32'd1234567,
 		// v03 2025-01-08 DMA: fix dac904 wiring
 		// v04 2026-03-03 DMA: lvcmos18 for bank 34 dn 35 test
-		// v05 2026-03-24 DMA: dac204 pulses
-		output reg [7:0] version = 8'd5,
+		// v05 2026-03-24 DMA: dac904 pulses
+		// v06 2026-06-10 DMA: dac904 adjustable ramp
+		output reg [7:0] version = 8'd6,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -2985,9 +2989,9 @@
 	        8'h25   : reg_data_out <= {31'd0,dac904_write2mem};
 	        8'h26   : reg_data_out <= dac904_high_width;
 	        8'h27   : reg_data_out <= dac904_low_width;
-	        8'h28   : reg_data_out <= slv_reg40;
-	        8'h29   : reg_data_out <= slv_reg41;
-	        8'h2A   : reg_data_out <= slv_reg42;
+	        8'h28   : reg_data_out <= {18'd0,dac904_ramp_step};
+	        8'h29   : reg_data_out <= {18'd0,dac904_ramp_max};
+	        8'h2A   : reg_data_out <= {18'd0,dac904_ramp_min};
 	        8'h2B   : reg_data_out <= slv_reg43;
 	        8'h2C   : reg_data_out <= slv_reg44;
 	        8'h2D   : reg_data_out <= slv_reg45;
@@ -3274,9 +3278,9 @@
 	        8'h25   : dac904_write2mem <= 1'b1; // flag
 	        8'h26   : dac904_high_width <= slv_reg38;
 	        8'h27   : dac904_low_width <= slv_reg39;
-	        // 8'h28   : replace_this_reg <= slv_reg40;
-	        // 8'h29   : replace_this_reg <= slv_reg41;
-	        // 8'h2A   : replace_this_reg <= slv_reg42;
+	        8'h28   : dac904_ramp_step <= slv_reg40[13:0];
+	        8'h29   : dac904_ramp_max <= slv_reg41[13:0];
+	        8'h2A   : dac904_ramp_min <= slv_reg42[13:0];
 	        // 8'h2B   : replace_this_reg <= slv_reg43;
 	        // 8'h2C   : replace_this_reg <= slv_reg44;
 	        // 8'h2D   : replace_this_reg <= slv_reg45;

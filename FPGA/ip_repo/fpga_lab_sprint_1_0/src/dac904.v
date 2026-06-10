@@ -29,6 +29,9 @@ module dac904(
     input wire write2mem,
     input wire [31:0] high_width,
     input wire [31:0] low_width,
+    input wire [13:0] ramp_step,
+    input wire [13:0] ramp_max,
+    input wire [13:0] ramp_min,
     output reg [13:0] dac_in = 14'b01_1111_1111_1111,
     output wire clk_out
     );
@@ -67,7 +70,7 @@ always @ (posedge clk) begin
                 1:begin //ramp
                     fsm <= 2;
                     clk_en <= 1'b1;
-                    dac_in <= 14'b01_1111_1111_1111;
+                    dac_in <= ramp_min;
                 end
                 2:begin //pulse
                     fsm <= 3;
@@ -103,7 +106,12 @@ always @ (posedge clk) begin
 
         2:begin
             if(control == 1)begin // until control is not changed
-                dac_in <= dac_in + 14'd1;
+                if(dac_in >= ramp_max && dac_in <= ramp_min)begin
+                    dac_in <= dac_in - ramp_step;
+                end
+                else begin 
+                    dac_in <= ramp_min;
+                end
             end
             else begin
                 fsm <= 0;

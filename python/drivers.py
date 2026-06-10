@@ -390,6 +390,7 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_CONTINUOUS"))
             self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
             zynq_log(f"Setting DAC904 to {voltage} mV (DAC value: {dac_value}) in continuous mode", level="INFO")
+            return voltage, dac_value
 
         def reset(self):
             """ Reset the DAC904 to 0 mV """
