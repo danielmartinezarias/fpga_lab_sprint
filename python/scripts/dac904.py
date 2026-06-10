@@ -29,8 +29,8 @@ if __name__ == "__main__":
         measurement = DAC904()
         match args.mode:
             case 'single':
-                measurement.dac904.set_voltage(args.voltage)
-                print(f'Set DAC value to {args.voltage} mV')
+                voltage, dac_value = measurement.dac904.set_voltage(args.voltage)
+                print(f'Set DAC value to {voltage} mV, DAC value {dac_value}')
             case 'ramp_on':
                 measurement.dac904.ramp()
                 print('Ramping DAC voltage from -3000 mV to 3000 mV')
