@@ -398,6 +398,17 @@ class ZynqBoard:
         
         def ramp(self, step_size_mv: float=None, max_voltage_mv: float=None, min_voltage_mv: float=None):
             """ Ramp the DAC904 from min to max voltage """
+            # check if the parameters are valid
+            if max_voltage_mv is not None and (max_voltage_mv < self.DACCalib["min_voltage"] or max_voltage_mv > self.DACCalib["max_voltage"]):
+                zynq_log(f"Max voltage {max_voltage_mv} mV out of range!", level="ERROR")
+                raise ValueError(f"Max voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
+            if min_voltage_mv is not None and (min_voltage_mv < self.DACCalib["min_voltage"] or min_voltage_mv > self.DACCalib["max_voltage"]):
+                zynq_log(f"Min voltage {min_voltage_mv} mV out of range!", level="ERROR")
+                raise ValueError(f"Min voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
+            # check if max voltage is greater than min voltage
+            if max_voltage_mv is not None and min_voltage_mv is not None and max_voltage_mv <= min_voltage_mv:
+                zynq_log(f"Max voltage {max_voltage_mv} mV must be greater than min voltage {min_voltage_mv} mV!", level="ERROR")
+                raise ValueError(f"Max voltage must be greater than min voltage!")
             if step_size_mv is not None:
                 self.zynqboard.write_addr(self.ADDRESSES("RAMP_STEP"), int(step_size_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"]))
             if max_voltage_mv is not None:
@@ -405,7 +416,7 @@ class ZynqBoard:
             if min_voltage_mv is not None:
                 self.zynqboard.write_addr(self.ADDRESSES("RAMP_MIN"), int(min_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
-            zynq_log(f"Ramping DAC904 from {self.DACCalib['min_voltage']} mV to {self.DACCalib['max_voltage']} mV", level="INFO")
+            zynq_log(f"Ramping DAC904 from {min_voltage_mv} mV to {max_voltage_mv} mV with step size {step_size_mv} mV", level="INFO")
         
         def pulse_binary(self, voltage: float, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
             """ Pulse the DAC904 with the given voltage and pulse widths
