@@ -47,7 +47,7 @@ assign clk_out = clk_en ? clk : 1'b0;
 assign wea = write2mem;
 assign index_mem = wea ? memindex_write : memindex_read;
 // Memory instance
-dac904_mem your_instance_name (
+dac904_mem dac904_mem1 (
   .clka(clk),    // input wire clka
   .wea(wea),      // input wire [0 : 0] wea
   .addra(index_mem),  // input wire [7 : 0] addra

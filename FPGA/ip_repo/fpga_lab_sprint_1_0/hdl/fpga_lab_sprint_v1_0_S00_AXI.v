@@ -69,7 +69,8 @@
 		// v04 2026-03-03 DMA: lvcmos18 for bank 34 dn 35 test
 		// v05 2026-03-24 DMA: dac904 pulses
 		// v06 2026-06-10 DMA: dac904 adjustable ramp
-		output reg [7:0] version = 8'd6,
+		// v07 2026-06-12 DMA: update rule for the qlif experiment
+		output reg [7:0] version = 8'd7,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
