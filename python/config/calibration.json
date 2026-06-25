@@ -28,6 +28,9 @@
       "resolution": 14,
       "pulse_high_width_ns": 100,
       "pulse_low_width_ns": 100,
-      "dac904_clk": 100000000
+      "dac904_clk": 100000000,
+      "waveform_timescale_ns": 10,
+      "sinusoidal_amplitude_mv": 1400,
+      "sinusoidal_frequency_hz": 1000
     }
 }

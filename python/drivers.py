@@ -444,7 +444,8 @@ class ZynqBoard:
             :param pulse_sequence: List of voltags in mV,
             """
             # write the length of the pulse sequence to the FPGA
-            self.zynqboard.write_addr(self.ADDRESSES("N_STATES"), len(pulse_sequence))
+            self.n_states = len(pulse_sequence)
+            self.zynqboard.write_addr(self.ADDRESSES("N_STATES"), self.n_states)
             # write the pulse sequence to the FPGA
             for i, voltage in enumerate(pulse_sequence):
                 if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
@@ -455,12 +456,21 @@ class ZynqBoard:
                 self.zynqboard.write_addr(self.ADDRESSES("DATA_DAC904"), dac_value)
                 self.zynqboard.write_addr(self.ADDRESSES("WRITE_ENABLE"), 1)
                 zynq_log(f"Loading pulse {i} into DAC904 pulse memory with voltage {voltage} mV (DAC value: {dac_value})", level="INFO")
+            flags = self.zynqboard.read_addr(self.ADDRESSES("FLAGS"))
+            if flags == 1:
+                zynq_log(f"Pulse sequence loaded into DAC904 pulse memory successfully.", level="INFO")
 
         def pulse_memory(self, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
             """ Pulse the DAC904 with the loaded pulse sequence in memory
             :param pulse_high_width_ns: Pulse high width in nanoseconds (default: calibration value)
             :param pulse_low_width_ns: Pulse low width in nanoseconds (default: calibration value)
             """
+            flags = self.zynqboard.read_addr(self.ADDRESSES("FLAGS"))
+            if flags == 1:
+                zynq_log(f"Memory loaded confirmed. Script can proceed. ", level="INFO")
+            else:
+                zynq_log(f"Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().", level="ERROR")
+                raise ValueError("Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().")
             if pulse_high_width_ns is None:
                 pulse_high_width_ns = self.DACCalib["pulse_high_width_ns"]
             if pulse_low_width_ns is None:
@@ -469,6 +479,53 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES("PULSE_LOW_WIDTH"), int(pulse_low_width_ns / (1e9 / self.DACCalib["dac904_clk"])))
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_PULSE_MEMORY"))
             zynq_log(f"Pulsing DAC904 with loaded pulse memory, high width: {pulse_high_width_ns} ns, low width: {pulse_low_width_ns} ns", level="INFO")
+            # calculate sequence time and frequency
+            sequence_time_ns = self.n_states * (pulse_high_width_ns + pulse_low_width_ns)
+            sequence_freq_hz = 1 / (sequence_time_ns * 1e-9)
+            zynq_log(f"Pulse sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz} Hz", level="INFO")
+
+        def waveform(self, timescale_ns: float=None):
+            """ Output the loaded pulse sequence in memory as a waveform
+            :param timescale_ns: Time scale in nanoseconds (default: calibration value)
+            """
+            flags = self.zynqboard.read_addr(self.ADDRESSES("FLAGS"))
+            if flags == 1:
+                zynq_log(f"Memory loaded confirmed. Script can proceed. ", level="INFO")
+            else:
+                zynq_log(f"Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().", level="ERROR")
+                raise ValueError("Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().")
+            if timescale_ns is None:
+                timescale_ns = self.DACCalib["waveform_timescale_ns"]
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(timescale_ns / (1e9 / self.DACCalib["dac904_clk"])-1)) # PULSE_HIGH_WIDTH is used as the timescale for the waveform output
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_WAVEFORM"))
+            zynq_log(f"Outputting DAC904 waveform with loaded pulse memory, timescale: {timescale_ns} ns", level="INFO")
+            sequence_time_ns = self.n_states * timescale_ns
+            sequence_freq_hz = 1 / (sequence_time_ns * 1e-9)
+            zynq_log(f"Waveform sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz} Hz", level="INFO")
+
+        def waveform_sinusoidal(self, amplitude_mv: float=None, frequency_hz: float=None):
+            """ Output a sinusoidal waveform on the DAC904
+            :param amplitude_mv: Amplitude in millivolts (default: calibration value)
+            :param frequency_hz: Frequency in hertz (default: calibration value)
+            """
+            if amplitude_mv is None:
+                amplitude_mv = self.DACCalib["sinusoidal_amplitude_mv"]
+            if frequency_hz is None:
+                frequency_hz = self.DACCalib["sinusoidal_frequency_hz"]
+            if amplitude_mv < self.DACCalib["min_voltage"] or amplitude_mv > self.DACCalib["max_voltage"]:
+                zynq_log(f"Amplitude {amplitude_mv} mV out of range!", level="ERROR")
+                raise ValueError(f"Amplitude must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
+            # load the sinusoidal waveform into the memory, open config/dac_memory_sin.json
+            config_path = os.path.join(os.path.dirname(__file__), "config/dac_memory_sin.json")
+            try:
+                with open(config_path, "r", encoding="utf-8") as file:
+                    sin_sequence = json.load(file)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Configuration file not found at {config_path}.")
+            self.load_pulse_memory([amplitude_mv * v for v in sin_sequence])
+            timescale_ns = 1 / frequency_hz * 1e9 / len(sin_sequence)
+            self.waveform(timescale_ns=timescale_ns)
+            zynq_log(f"Outputting DAC904 sinusoidal waveform with amplitude: {amplitude_mv} mV, frequency: {frequency_hz} Hz", level="INFO")
 
 
 

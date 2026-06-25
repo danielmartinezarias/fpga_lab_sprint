@@ -16,12 +16,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test DAC904.",
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--voltage', type=int, default=0, help='DAC Voltage in mV (-3000 to 3000)')
-    parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary','pulse_memory','off'], help='Operation mode')
+    parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary','pulse_memory','waveform_from_json','waveform_sinusoidal','off'], help='Operation mode')
     parser.add_argument('--ramp_step_mv', type=float, default=1, help='Ramp step in mV (only for ramp_on mode)')
     parser.add_argument('--ramp_max_mv', type=float, default=1400, help='Ramp max voltage in mV (only for ramp_on mode)')
     parser.add_argument('--ramp_min_mv', type=float, default=-1400, help='Ramp min voltage in mV (only for ramp_on mode)')
     parser.add_argument('--pulse_high_width_ns', type=int, default=100, help='Pulse high width in ns (only for pulse_binary mode)')
     parser.add_argument('--pulse_low_width_ns', type=int, default=100, help='Pulse low width in ns (only for pulse_binary mode)')
+    parser.add_argument('--timescale_ns', type=float, default=None, help='Time scale in ns for waveform output (only for waveform mode)')
+    parser.add_argument('--amplitude_mv', type=float, default=1400, help='Amplitude in mV for sinusoidal waveform (only for waveform_sinusoidal mode)')
+    parser.add_argument('--frequency_hz', type=float, default=1000, help='Frequency in Hz for sinusoidal waveform (only for waveform_sinusoidal mode)')
     parser.add_argument('--load_memory', action='store_true', help='Load pulse sequence from config/dac_memory.json into DAC pulse memory (only for pulse_memory mode)')
     args = parser.parse_args()
     print(args)
@@ -51,6 +54,18 @@ if __name__ == "__main__":
                         print(f'Loaded pulse sequence from config/dac_memory.json into DAC pulse memory: {pulse_sequence}')
                 measurement.dac904.pulse_memory(args.pulse_high_width_ns, args.pulse_low_width_ns)
                 print(f'Pulsing DAC with pulse sequence from memory, high width: {args.pulse_high_width_ns} ns, low width: {args.pulse_low_width_ns} ns')
+            case 'waveform_from_json':
+                if args.load_memory:
+                    with open('config/dac_memory.json', 'r') as f:
+                        pulse_sequence = json.load(f)
+                        measurement.dac904.load_pulse_memory(pulse_sequence)
+                        print(f'Loaded pulse sequence from config/dac_memory.json into DAC pulse memory: {pulse_sequence}')
+                measurement.dac904.waveform(args.timescale_ns)
+                print(f'Outputting DAC waveform with pulse sequence from memory, timescale: {args.timescale_ns} ns')
+            case 'waveform_sinusoidal':
+                measurement.dac904.waveform_sinusoidal(args.amplitude_mv, args.frequency_hz)
+                print(f'Outputting DAC sinusoidal waveform with amplitude: {args.amplitude_mv} mV, frequency: {args.frequency_hz} Hz')
+
             case 'off':
                 measurement.dac904.turn_off()
                 print('Turning off DAC output')

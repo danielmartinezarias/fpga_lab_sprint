@@ -62,6 +62,17 @@
 		output reg [13:0] dac904_ramp_step = 14'd1, // step size for ramp mode
 		output reg [13:0] dac904_ramp_max = 14'b01_0000_0000_0000, // max value for ramp mode
 		output reg [13:0] dac904_ramp_min = 14'b10_1111_1111_1111, // min value for ramp mode
+		input wire [7:0] dac904_flags,
+		//QLIF
+		input wire [19:0] qlif_data_out,
+		output reg [13:0] qlif_v0 = 14'b01_1111_1111_1111, // 0V
+		output reg qlif_start = 1'b0,
+		output reg [31:0] qlif_intTime = 32'd350000000,//1s
+		output reg [13:0] qlif_v_step = 14'd41, // aprox 15mV 41=15/6000*2**14
+		output reg [31:0] qlif_delay = 32'd15, // 15 clk cycles = 150ns at 100MHz = 30m in optical fiber
+		output reg [31:0] qlif_coincidence_window = 32'd1, // 1 clk cycle = 10ns at 100MHz
+		input wire [7:0] qlif_flags,
+		output reg [17:0] qlif_index_mem_r = 18'd0,
 		// version and test
 		output reg master_reset = 1'd0,
 		output reg [31:0] test_reg = 32'd1234567,
@@ -69,7 +80,7 @@
 		// v04 2026-03-03 DMA: lvcmos18 for bank 34 dn 35 test
 		// v05 2026-03-24 DMA: dac904 pulses
 		// v06 2026-06-10 DMA: dac904 adjustable ramp
-		// v07 2026-06-12 DMA: update rule for the qlif experiment
+		// v07 2026-06-25 DMA: dac904 memory based, and update rule for the qlif experiment
 		output reg [7:0] version = 8'd7,
 		// User ports ends
 		// Do not modify the ports beyond this line
@@ -2993,16 +3004,16 @@
 	        8'h28   : reg_data_out <= {18'd0,dac904_ramp_step};
 	        8'h29   : reg_data_out <= {18'd0,dac904_ramp_max};
 	        8'h2A   : reg_data_out <= {18'd0,dac904_ramp_min};
-	        8'h2B   : reg_data_out <= slv_reg43;
-	        8'h2C   : reg_data_out <= slv_reg44;
-	        8'h2D   : reg_data_out <= slv_reg45;
-	        8'h2E   : reg_data_out <= slv_reg46;
-	        8'h2F   : reg_data_out <= slv_reg47;
-	        8'h30   : reg_data_out <= slv_reg48;
-	        8'h31   : reg_data_out <= slv_reg49;
-	        8'h32   : reg_data_out <= slv_reg50;
-	        8'h33   : reg_data_out <= slv_reg51;
-	        8'h34   : reg_data_out <= slv_reg52;
+	        8'h2B   : reg_data_out <= {18'd0,dac904_flags};
+	        8'h2C   : reg_data_out <= {12'd0,qlif_data_out};
+	        8'h2D   : reg_data_out <= {18'd0,qlif_v0};
+	        8'h2E   : reg_data_out <= {31'd0,qlif_start}; // flag qlif_start
+	        8'h2F   : reg_data_out <= qlif_intTime;
+	        8'h30   : reg_data_out <= {18'd0,qlif_v_step};
+	        8'h31   : reg_data_out <= qlif_delay;
+	        8'h32   : reg_data_out <= qlif_coincidence_window;
+	        8'h33   : reg_data_out <= {24'd0,qlif_flags};
+	        8'h34   : reg_data_out <= {14'd0,qlif_index_mem_r};
 	        8'h35   : reg_data_out <= slv_reg53;
 	        8'h36   : reg_data_out <= slv_reg54;
 	        8'h37   : reg_data_out <= slv_reg55;
@@ -3282,16 +3293,16 @@
 	        8'h28   : dac904_ramp_step <= slv_reg40[13:0];
 	        8'h29   : dac904_ramp_max <= slv_reg41[13:0];
 	        8'h2A   : dac904_ramp_min <= slv_reg42[13:0];
-	        // 8'h2B   : replace_this_reg <= slv_reg43;
-	        // 8'h2C   : replace_this_reg <= slv_reg44;
-	        // 8'h2D   : replace_this_reg <= slv_reg45;
-	        // 8'h2E   : replace_this_reg <= slv_reg46;
-	        // 8'h2F   : replace_this_reg <= slv_reg47;
-	        // 8'h30   : replace_this_reg <= slv_reg48;
-	        // 8'h31   : replace_this_reg <= slv_reg49;
-	        // 8'h32   : replace_this_reg <= slv_reg50;
-	        // 8'h33   : replace_this_reg <= slv_reg51;
-	        // 8'h34   : replace_this_reg <= slv_reg52;
+	        // 8'h2B   : replace_this_reg <= slv_reg43; // dac904_flags
+	        // 8'h2C   : replace_this_reg <= slv_reg44; //qlif_data_out
+	        8'h2D   : qlif_v0 <= slv_reg45[13:0];
+	        8'h2E   : qlif_start <= 1'b1;
+	        8'h2F   : qlif_intTime <= slv_reg47;
+	        8'h30   : qlif_v_step <= slv_reg48[13:0];
+	        8'h31   : qlif_delay <= slv_reg49;
+	        8'h32   : qlif_coincidence_window <= slv_reg50;
+	        // 8'h33   : replace_this_reg <= slv_reg51; // qlif_flags
+	        8'h34   : qlif_index_mem_r <= slv_reg52[17:0];
 	        // 8'h35   : replace_this_reg <= slv_reg53;
 	        // 8'h36   : replace_this_reg <= slv_reg54;
 	        // 8'h37   : replace_this_reg <= slv_reg55;
@@ -3502,6 +3513,7 @@
 			reset_TT			<= 1'b0;
 			master_reset		<= 1'b0;
 			dac904_write2mem	<= 1'b0;
+			qlif_start			<= 1'b0;
         end
     end
     

@@ -105,6 +105,23 @@
     wire [13:0] dac904_ramp_step;
     wire [13:0] dac904_ramp_max;
     wire [13:0] dac904_ramp_min;
+    wire [7:0] dac904_flags;
+    wire [13:0] dac904_dac_in;
+    wire dac904_clk_out;
+    //QLIF
+    wire [19:0] qlif_data_out;
+    wire [13:0] qlif_dac_i;
+    wire qlif_dac_clk_out;
+    wire qlif_dac_en;
+    wire [13:0] qlif_v0;
+    wire qlif_start;
+    wire [31:0] qlif_intTime;
+    wire [13:0] qlif_v_step;
+    wire [31:0] qlif_delay;
+    wire [31:0] qlif_coincidence_window;
+    wire [7:0] qlif_flags;
+    wire [17:0] qlif_index_mem_r;
+
     // version and test
     wire master_reset;
     wire [7:0] test_reg;
@@ -160,7 +177,9 @@
         .delayTT4(delayTT4),
         .delayTT5(delayTT5)
     );
-
+    assign gpio_breakout[31:6] = (qlif_dac_en) ? qlif_dac_i: dac904_dac_in;
+    // assign gpio_breakout[20] = (qlif_dac_en) ? qlif_dac_clk_out: dac904_clk_out;
+    assign gpio_breakout[20] = clk_100MHz;
     dac904 dac904_inst(
         .clk(clk_100MHz),
         .control(dac904_control),
@@ -173,8 +192,26 @@
         .ramp_step(dac904_ramp_step),
         .ramp_max(dac904_ramp_max),
         .ramp_min(dac904_ramp_min),
-        .dac_in(gpio_breakout[19:6]),
-        .clk_out(gpio_breakout[20])
+        .flags(dac904_flags),
+        .dac_in(dac904_dac_in),
+        .clk_out(dac904_clk_out)
+    );
+
+    qlif qlif_inst(
+        .clk(clk_100MHz),
+        .data_out(qlif_data_out),
+        .det(signal[3:0]),
+        .dac_i(qlif_dac_i),
+        .dac_clk_out(qlif_dac_clk_out),
+        .dac_en(qlif_dac_en),
+        .v0(qlif_v0),
+        .start(qlif_start),
+        .intTime(qlif_intTime),
+        .v_step(qlif_v_step),
+        .delay(qlif_delay),
+        .coincidence_window(qlif_coincidence_window),
+        .flags(qlif_flags),
+        .index_mem_r(qlif_index_mem_r)
     );
 
 	
@@ -230,6 +267,17 @@
         .dac904_ramp_step(dac904_ramp_step),
         .dac904_ramp_max(dac904_ramp_max),
         .dac904_ramp_min(dac904_ramp_min),
+        .dac904_flags(dac904_flags),
+        //QLIF
+        .qlif_data_out(qlif_data_out),
+        .qlif_v0(qlif_v0),
+        .qlif_start(qlif_start),
+        .qlif_intTime(qlif_intTime),
+        .qlif_v_step(qlif_v_step),
+        .qlif_delay(qlif_delay),
+        .qlif_coincidence_window(qlif_coincidence_window),
+        .qlif_flags(qlif_flags),
+        .qlif_index_mem_r(qlif_index_mem_r),
         // version and test
         .master_reset(master_reset),
         .test_reg(test_reg),

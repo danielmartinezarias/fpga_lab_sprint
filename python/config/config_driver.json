@@ -68,7 +68,8 @@
             "PULSE_LOW_WIDTH": "0x27",
             "RAMP_STEP": "0x28",
             "RAMP_MAX": "0x29",
-            "RAMP_MIN": "0x2A"
+            "RAMP_MIN": "0x2A",
+            "FLAGS": "0x2B"
         },
         "values": {
             "DATA_DAC904": "0x1FFF",      
@@ -77,6 +78,7 @@
             "CONTROL_DAC904_PULSE_BINARY": "0x2",
             "CONTROL_DAC904_OFF": "0xFF",
             "CONTROL_DAC904_PULSE_MEMORY": "0x3",
+            "CONTROL_DAC904_WAVEFORM": "0x4",
             "RAMP_STEP": "0x1",
             "RAMP_MAX": "0x1111", 
             "RAMP_MIN": "0x2EEE"  

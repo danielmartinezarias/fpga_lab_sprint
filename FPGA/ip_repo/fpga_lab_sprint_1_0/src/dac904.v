@@ -32,6 +32,7 @@ module dac904(
     input wire [13:0] ramp_step,
     input wire [13:0] ramp_max,
     input wire [13:0] ramp_min,
+    output reg [7:0] flags = 8'd0,
     output reg [13:0] dac_in = 14'b01_1111_1111_1111,
     output wire clk_out
     );
@@ -80,6 +81,13 @@ always @ (posedge clk) begin
                 end
                 3:begin //read from mem and output as pulse
                     fsm <= 5;
+                    clk_en <= 1'b1;
+                    memindex_read <= 8'd0;
+                    dac_in <= data_mem;
+                    counter <= 32'd0;
+                end
+                4:begin //read from mem and output just as memory
+                    fsm <= 7;
                     clk_en <= 1'b1;
                     memindex_read <= 8'd0;
                     dac_in <= data_mem;
@@ -190,9 +198,32 @@ always @ (posedge clk) begin
             end
         end
 
+        7:begin
+            if(control == 4)begin // until control is not changed
+                if(counter < high_width)begin
+                    dac_in <= data_mem;
+                    counter <= counter + 32'd1;
+                end
+                else begin
+                    counter <= 32'd0;
+                    memindex_read <= memindex_read + 8'd1;
+                    if(memindex_read == n_states - 1)begin
+                        memindex_read <= 8'd0; // reset to the beginning of the mem sequence
+                    end
+                end
+            end
+            else begin
+                fsm <= 0;
+            end
+        end
+
         default:begin
         end
     endcase
+    if(write2mem)begin
+        flags[0] <= 1'b1; // set flag to indicate memory is not empty
+    end
+
 end
 
 
