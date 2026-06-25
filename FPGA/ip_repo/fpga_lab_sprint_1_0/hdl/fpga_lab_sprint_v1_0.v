@@ -177,7 +177,7 @@
         .delayTT4(delayTT4),
         .delayTT5(delayTT5)
     );
-    assign gpio_breakout[31:6] = (qlif_dac_en) ? qlif_dac_i: dac904_dac_in;
+    assign gpio_breakout[19:6] = (qlif_dac_en) ? qlif_dac_i: dac904_dac_in;
     // assign gpio_breakout[20] = (qlif_dac_en) ? qlif_dac_clk_out: dac904_clk_out;
     assign gpio_breakout[20] = clk_100MHz;
     dac904 dac904_inst(
