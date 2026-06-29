@@ -397,32 +397,32 @@ class ZynqBoard:
             """ Reset the DAC904 to 0 mV """
             self.set_voltage(0)
         
-        def ramp(self, step_size_mv: float=None, max_voltage_mv: float=None, min_voltage_mv: float=None, frequency_hz: float=None):
-            """ Ramp the DAC904 from min to max voltage """
-            # check if the parameters are valid
-            if max_voltage_mv is not None and (max_voltage_mv < self.DACCalib["min_voltage"] or max_voltage_mv > self.DACCalib["max_voltage"]):
-                zynq_log(f"Max voltage {max_voltage_mv} mV out of range!", level="ERROR")
-                raise ValueError(f"Max voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
-            if min_voltage_mv is not None and (min_voltage_mv < self.DACCalib["min_voltage"] or min_voltage_mv > self.DACCalib["max_voltage"]):
-                zynq_log(f"Min voltage {min_voltage_mv} mV out of range!", level="ERROR")
-                raise ValueError(f"Min voltage must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
-            # check if max voltage is greater than min voltage
-            if max_voltage_mv is not None and min_voltage_mv is not None and max_voltage_mv <= min_voltage_mv:
-                zynq_log(f"Max voltage {max_voltage_mv} mV must be greater than min voltage {min_voltage_mv} mV!", level="ERROR")
-                raise ValueError(f"Max voltage must be greater than min voltage!")
-            if step_size_mv is not None:
-                self.zynqboard.write_addr(self.ADDRESSES("RAMP_STEP"), int(step_size_mv / (-self.DACCalib["min_voltage"] + self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"]))
-            if max_voltage_mv is not None:
-                self.zynqboard.write_addr(self.ADDRESSES("RAMP_MAX"), int(max_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
-            if min_voltage_mv is not None:
-                self.zynqboard.write_addr(self.ADDRESSES("RAMP_MIN"), int(min_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
-            # control the time each step takes to ramp the voltage with PULSE_HIGH_WIDTH register
-            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
-            sequence_time_ns = 1 / frequency_hz * 1e9
-            timescale_ns = sequence_time_ns / self.n_states
-            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(timescale_ns / (1e9 / self.DACCalib["dac904_clk"])))
-            self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
-            zynq_log(f"Ramping DAC904 from {min_voltage_mv} mV to {max_voltage_mv} mV with step size {step_size_mv} mV", level="INFO")
+        def ramp(self, amplitude_mv: float=None, frequency_hz: float=None):
+            """ Output a ramp waveform on the DAC904
+            :param amplitude_mv: Amplitude in millivolts (default: calibration value)
+            :param frequency_hz: Frequency in hertz (default: calibration value)
+            """
+            if amplitude_mv is None:
+                amplitude_mv = self.DACCalib["ramp_amplitude_mv"]
+            if frequency_hz is None:
+                frequency_hz = self.DACCalib["ramp_frequency_hz"]
+            if amplitude_mv < self.DACCalib["min_voltage"] or amplitude_mv > self.DACCalib["max_voltage"]:
+                zynq_log(f"Amplitude {amplitude_mv} mV out of range!", level="ERROR")
+                raise ValueError(f"Amplitude must be between {self.DACCalib['min_voltage']} and {self.DACCalib['max_voltage']} mV")
+            # load the ramp waveform into the memory, open config/dac_memory_ramp.json
+            config_path = os.path.join(os.path.dirname(__file__), "config/dac_memory_ramp.json")
+            try:
+                with open(config_path, "r", encoding="utf-8") as file:
+                    ramp_sequence = json.load(file)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Configuration file not found at {config_path}.")
+            self.load_pulse_memory([amplitude_mv * v for v in ramp_sequence])
+            # self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
+            # timescale_ns = 1 / frequency_hz * 1e9 / self.n_states
+            self.waveform(frequency_hz=frequency_hz)
+            zynq_log(f"Outputting DAC904 ramp waveform with amplitude: {amplitude_mv} mV, frequency: {frequency_hz/1000} kHz", level="INFO")
+
+
 
         
         def pulse_binary(self, voltage: float, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
@@ -492,9 +492,9 @@ class ZynqBoard:
             sequence_freq_hz = 1 / (sequence_time_ns * 1e-9)
             zynq_log(f"Pulse sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz/1000} kHz", level="INFO")
 
-        def waveform(self, timescale_ns: float=None):
+        def waveform(self, frequency_hz: float=None):
             """ Output the loaded pulse sequence in memory as a waveform
-            :param timescale_ns: Time scale in nanoseconds (default: calibration value)
+            :param frequency_hz: Frequency in hertz (default: calibration value)
             """
             flags = self.zynqboard.read_addr(self.ADDRESSES("FLAGS"))
             if flags == 1:
@@ -502,12 +502,14 @@ class ZynqBoard:
             else:
                 zynq_log(f"Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().", level="ERROR")
                 raise ValueError("Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().")
-            if timescale_ns is None:
-                timescale_ns = self.DACCalib["waveform_timescale_ns"]
+            if frequency_hz is None:
+                frequency_hz = self.DACCalib["waveform_frequency_hz"]
+            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
+            timescale_ns = 1 / frequency_hz * 1e9 / self.n_states
             self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(timescale_ns / (1e9 / self.DACCalib["dac904_clk"])-1)) # PULSE_HIGH_WIDTH is used as the timescale for the waveform output
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_WAVEFORM"))
             zynq_log(f"Outputting DAC904 waveform with loaded pulse memory, timescale: {timescale_ns} ns", level="INFO")
-            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
+            
             sequence_time_ns = self.n_states * timescale_ns
             sequence_freq_hz = 1 / (sequence_time_ns * 1e-9)
             zynq_log(f"Waveform sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz/1000} kHz", level="INFO")

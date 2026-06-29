@@ -17,12 +17,8 @@ if __name__ == "__main__":
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--voltage', type=int, default=0, help='DAC Voltage in mV (-3000 to 3000)')
     parser.add_argument('--mode', type=str, default='single', choices=['single', 'ramp_on','ramp_off', 'pulse_binary','pulse_memory','waveform_from_json','waveform_sinusoidal','off'], help='Operation mode')
-    parser.add_argument('--ramp_step_mv', type=float, default=1, help='Ramp step in mV (only for ramp_on mode)')
-    parser.add_argument('--ramp_max_mv', type=float, default=1400, help='Ramp max voltage in mV (only for ramp_on mode)')
-    parser.add_argument('--ramp_min_mv', type=float, default=-1400, help='Ramp min voltage in mV (only for ramp_on mode)')
     parser.add_argument('--pulse_high_width_ns', type=int, default=100, help='Pulse high width in ns (only for pulse_binary mode)')
     parser.add_argument('--pulse_low_width_ns', type=int, default=100, help='Pulse low width in ns (only for pulse_binary mode)')
-    parser.add_argument('--timescale_ns', type=float, default=None, help='Time scale in ns for waveform output (only for waveform mode)')
     parser.add_argument('--amplitude_mv', type=float, default=1400, help='Amplitude in mV for sinusoidal waveform (only for waveform_sinusoidal mode)')
     parser.add_argument('--frequency_hz', type=float, default=1000, help='Frequency in Hz for sinusoidal waveform (only for waveform_sinusoidal mode)')
     parser.add_argument('--load_memory', action='store_true', help='Load pulse sequence from config/dac_memory.json into DAC pulse memory (only for pulse_memory mode)')
@@ -38,8 +34,8 @@ if __name__ == "__main__":
                 voltage, dac_value = measurement.dac904.set_voltage(args.voltage)
                 print(f'Set DAC value to {voltage} mV, DAC value {dac_value}')
             case 'ramp_on':
-                measurement.dac904.ramp(args.ramp_step_mv, args.ramp_max_mv, args.ramp_min_mv, args.frequency_hz)
-                print(f'Ramping DAC voltage from {args.ramp_min_mv} mV to {args.ramp_max_mv} mV with step size {args.ramp_step_mv} mV')
+                measurement.dac904.ramp(args.amplitude_mv, args.frequency_hz)
+                print(f'Outputting DAC ramp waveform with amplitude: {args.amplitude_mv} mV, frequency: {args.frequency_hz} Hz')
             case 'ramp_off':
                 measurement.dac904.reset()
                 print('Resetting DAC voltage to 0 mV')
