@@ -38,7 +38,7 @@ if __name__ == "__main__":
                 voltage, dac_value = measurement.dac904.set_voltage(args.voltage)
                 print(f'Set DAC value to {voltage} mV, DAC value {dac_value}')
             case 'ramp_on':
-                measurement.dac904.ramp(args.ramp_step_mv, args.ramp_max_mv, args.ramp_min_mv)
+                measurement.dac904.ramp(args.ramp_step_mv, args.ramp_max_mv, args.ramp_min_mv, args.frequency_hz)
                 print(f'Ramping DAC voltage from {args.ramp_min_mv} mV to {args.ramp_max_mv} mV with step size {args.ramp_step_mv} mV')
             case 'ramp_off':
                 measurement.dac904.reset()

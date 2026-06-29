@@ -397,7 +397,7 @@ class ZynqBoard:
             """ Reset the DAC904 to 0 mV """
             self.set_voltage(0)
         
-        def ramp(self, step_size_mv: float=None, max_voltage_mv: float=None, min_voltage_mv: float=None):
+        def ramp(self, step_size_mv: float=None, max_voltage_mv: float=None, min_voltage_mv: float=None, frequency_hz: float=None):
             """ Ramp the DAC904 from min to max voltage """
             # check if the parameters are valid
             if max_voltage_mv is not None and (max_voltage_mv < self.DACCalib["min_voltage"] or max_voltage_mv > self.DACCalib["max_voltage"]):
@@ -416,8 +416,14 @@ class ZynqBoard:
                 self.zynqboard.write_addr(self.ADDRESSES("RAMP_MAX"), int(max_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
             if min_voltage_mv is not None:
                 self.zynqboard.write_addr(self.ADDRESSES("RAMP_MIN"), int(min_voltage_mv / (self.DACCalib["min_voltage"] - self.DACCalib["max_voltage"]) * 2**self.DACCalib["resolution"] + (2**(self.DACCalib["resolution"]-1))))
+            # control the time each step takes to ramp the voltage with PULSE_HIGH_WIDTH register
+            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
+            sequence_time_ns = 1 / frequency_hz * 1e9
+            timescale_ns = sequence_time_ns / self.n_states
+            self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(timescale_ns / (1e9 / self.DACCalib["dac904_clk"])))
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_RAMP"))
             zynq_log(f"Ramping DAC904 from {min_voltage_mv} mV to {max_voltage_mv} mV with step size {step_size_mv} mV", level="INFO")
+
         
         def pulse_binary(self, voltage: float, pulse_high_width_ns: float=None, pulse_low_width_ns: float=None):
             """ Pulse the DAC904 with the given voltage and pulse widths

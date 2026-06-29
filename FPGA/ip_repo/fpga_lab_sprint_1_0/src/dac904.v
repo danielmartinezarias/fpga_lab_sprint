@@ -72,6 +72,7 @@ always @ (posedge clk) begin
                     fsm <= 2;
                     clk_en <= 1'b1;
                     dac_in <= ramp_min;
+                    counter <= 32'd0;
                 end
                 2:begin //pulse
                     fsm <= 3;
@@ -114,11 +115,17 @@ always @ (posedge clk) begin
 
         2:begin
             if(control == 1)begin // until control is not changed
-                if(dac_in >= ramp_max && dac_in <= ramp_min)begin
-                    dac_in <= dac_in - ramp_step;
+                if(counter < high_width)begin
+                    counter <= counter + 32'd1;
                 end
-                else begin 
-                    dac_in <= ramp_min;
+                else begin
+                    if(dac_in >= ramp_max && dac_in <= ramp_min)begin
+                        dac_in <= dac_in - ramp_step;
+                    end
+                    else begin 
+                        dac_in <= ramp_min;
+                    end
+                    counter <= 32'd0;
                 end
             end
             else begin
