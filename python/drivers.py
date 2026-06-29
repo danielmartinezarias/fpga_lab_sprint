@@ -49,6 +49,7 @@ def zynq_log(msg, level="info"):
     global logger
     level = getattr(logging, level.upper(), None)
     logger.log(level, msg)
+    print(f"[{logging.getLevelName(level)}] {msg}")  
 
 def zynq_setup_logging(filename, folder="", level="INFO"):
     global logger
@@ -443,9 +444,9 @@ class ZynqBoard:
             """ Load a pulse sequence into the DAC904 pulse memory
             :param pulse_sequence: List of voltags in mV,
             """
-            # write the length of the pulse sequence to the FPGA
-            self.n_states = len(pulse_sequence)
-            self.zynqboard.write_addr(self.ADDRESSES("N_STATES"), self.n_states)
+            # write the length of the pulse sequence to the FPGA, this
+            self.zynqboard.write_addr(self.ADDRESSES("N_STATES"), len(pulse_sequence))
+            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
             # write the pulse sequence to the FPGA
             for i, voltage in enumerate(pulse_sequence):
                 if voltage < self.DACCalib["min_voltage"] or voltage > self.DACCalib["max_voltage"]:
@@ -480,9 +481,10 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_PULSE_MEMORY"))
             zynq_log(f"Pulsing DAC904 with loaded pulse memory, high width: {pulse_high_width_ns} ns, low width: {pulse_low_width_ns} ns", level="INFO")
             # calculate sequence time and frequency
+            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
             sequence_time_ns = self.n_states * (pulse_high_width_ns + pulse_low_width_ns)
             sequence_freq_hz = 1 / (sequence_time_ns * 1e-9)
-            zynq_log(f"Pulse sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz} Hz", level="INFO")
+            zynq_log(f"Pulse sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz/1000} kHz", level="INFO")
 
         def waveform(self, timescale_ns: float=None):
             """ Output the loaded pulse sequence in memory as a waveform
@@ -499,9 +501,10 @@ class ZynqBoard:
             self.zynqboard.write_addr(self.ADDRESSES("PULSE_HIGH_WIDTH"), int(timescale_ns / (1e9 / self.DACCalib["dac904_clk"])-1)) # PULSE_HIGH_WIDTH is used as the timescale for the waveform output
             self.zynqboard.write_addr(self.ADDRESSES("CONTROL_DAC904"), self.VALUES("CONTROL_DAC904_WAVEFORM"))
             zynq_log(f"Outputting DAC904 waveform with loaded pulse memory, timescale: {timescale_ns} ns", level="INFO")
+            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
             sequence_time_ns = self.n_states * timescale_ns
             sequence_freq_hz = 1 / (sequence_time_ns * 1e-9)
-            zynq_log(f"Waveform sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz} Hz", level="INFO")
+            zynq_log(f"Waveform sequence time: {sequence_time_ns} ns, frequency: {sequence_freq_hz/1000} kHz", level="INFO")
 
         def waveform_sinusoidal(self, amplitude_mv: float=None, frequency_hz: float=None):
             """ Output a sinusoidal waveform on the DAC904
@@ -523,9 +526,10 @@ class ZynqBoard:
             except FileNotFoundError:
                 raise FileNotFoundError(f"Configuration file not found at {config_path}.")
             self.load_pulse_memory([amplitude_mv * v for v in sin_sequence])
-            timescale_ns = 1 / frequency_hz * 1e9 / len(sin_sequence)
+            self.n_states = self.zynqboard.read_addr(self.ADDRESSES("N_STATES"))
+            timescale_ns = 1 / frequency_hz * 1e9 / self.n_states
             self.waveform(timescale_ns=timescale_ns)
-            zynq_log(f"Outputting DAC904 sinusoidal waveform with amplitude: {amplitude_mv} mV, frequency: {frequency_hz} Hz", level="INFO")
+            zynq_log(f"Outputting DAC904 sinusoidal waveform with amplitude: {amplitude_mv} mV, frequency: {frequency_hz/1000} kHz", level="INFO")
 
 
 

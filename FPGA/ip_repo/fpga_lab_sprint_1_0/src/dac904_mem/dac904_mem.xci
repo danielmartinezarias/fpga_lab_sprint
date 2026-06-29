@@ -2,7 +2,7 @@
   "schema": "xilinx.com:schema:json_instance:1.0",
   "ip_inst": {
     "xci_name": "dac904_mem",
-    "cell_name": "dac904_inst/your_instance_name",
+    "cell_name": "dac904_inst/dac904_mem1",
     "component_reference": "xilinx.com:ip:blk_mem_gen:8.4",
     "ip_revision": "7",
     "gen_directory": "../../../../project/project.tmp/fpga_lab_sprint_v1_0_project/fpga_lab_sprint_v1_0_project.gen/sources_1/ip/dac904_mem",

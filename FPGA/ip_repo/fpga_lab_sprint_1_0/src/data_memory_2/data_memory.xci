@@ -4,7 +4,7 @@
     "xci_name": "data_memory",
     "component_reference": "xilinx.com:ip:blk_mem_gen:8.4",
     "ip_revision": "7",
-    "gen_directory": ".",
+    "gen_directory": "../../../../project/project.tmp/fpga_lab_sprint_v1_0_project/fpga_lab_sprint_v1_0_project.gen/sources_1/ip/data_memory",
     "parameters": {
       "component_parameters": {
         "Component_Name": [ { "value": "data_memory", "resolve_type": "user", "usage": "all" } ],
@@ -174,11 +174,11 @@
         "IPCONTEXT": [ { "value": "IP_Flow" } ],
         "IPREVISION": [ { "value": "7" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "." } ],
+        "OUTPUTDIR": [ { "value": "../../../../project/project.tmp/fpga_lab_sprint_v1_0_project/fpga_lab_sprint_v1_0_project.gen/sources_1/ip/data_memory" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "." } ],
         "SWVERSION": [ { "value": "2023.2" } ],
-        "SYNTHESISFLOW": [ { "value": "OUT_OF_CONTEXT" } ]
+        "SYNTHESISFLOW": [ { "value": "GLOBAL" } ]
       }
     },
     "boundary": {
