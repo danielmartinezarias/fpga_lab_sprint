@@ -56,8 +56,8 @@ if __name__ == "__main__":
                         pulse_sequence = json.load(f)
                         measurement.dac904.load_pulse_memory(pulse_sequence)
                         print(f'Loaded pulse sequence from config/dac_memory.json into DAC pulse memory: {pulse_sequence}')
-                measurement.dac904.waveform(args.timescale_ns)
-                print(f'Outputting DAC waveform with pulse sequence from memory, timescale: {args.timescale_ns} ns')
+                measurement.dac904.waveform(args.frequency_hz)
+                print(f'Outputting DAC waveform with pulse sequence from memory, freq: {args.frequency_hz} ns')
             case 'waveform_sinusoidal':
                 measurement.dac904.waveform_sinusoidal(args.amplitude_mv, args.frequency_hz)
                 print(f'Outputting DAC sinusoidal waveform with amplitude: {args.amplitude_mv} mV, frequency: {args.frequency_hz} Hz')
