@@ -83,5 +83,27 @@
             "RAMP_MAX": "0x1111", 
             "RAMP_MIN": "0x2EEE"  
         }
+    },
+    "qlif": {
+        "addresses": {
+            "DATA_OUT": "0x2C",
+            "V0": "0x2D",
+            "START": "0x2E",
+            "INT_TIME": "0x2F",
+            "V_STEP": "0x30",
+            "DELAY": "0x31",
+            "COIN_WINDOW": "0x32",
+            "FLAGS": "0x33",
+            "INDEX_MEM_R": "0x34"
+        },
+        "values": {
+            "V0": "0x1FFF", 
+            "START": "0x1",
+            "INT_TIME": "0x14DC9380", 
+            "V_STEP": "0x29", 
+            "DELAY": "0xF", 
+            "COIN_WINDOW": "0x1",
+            "INDEX_MEM_R": "0x0"
+        }
     }
 }

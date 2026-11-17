@@ -212,6 +212,10 @@ class ZynqBoard:
         """ Returns an instance of the DAC904 """
         return self._DAC904(self)
 
+    def get_qlif_photon_update(self):
+        """ Returns an instance of the QLIFPhotonUpdate """
+        return self._QLIFPhotonUpdate(self)
+
     ################################################################################################################
     ############################################### TimeTagger class ###############################################
     ################################################################################################################
@@ -535,5 +539,46 @@ class ZynqBoard:
             self.waveform(frequency_hz=frequency_hz)
             zynq_log(f"Outputting DAC904 sinusoidal waveform with amplitude: {amplitude_mv} mV, frequency: {frequency_hz/1000} kHz", level="INFO")
 
+    class _QLIFPhotonUpdate:
+        def __init__(self, zynqboard):
+            """ Returns an instance of the QLIFPhotonUpdate"""
+            self.zynqboard=zynqboard
 
+            self.QLIFConfig = self.zynqboard.config["qlif_photon_update"]
+            self.QLIFCalib = self.zynqboard.calibration["qlif_photon_update"]
 
+            self.ADDRESSES = lambda addr: int(self.QLIFConfig["addresses"][addr], 16)
+            self.VALUES = lambda value: int(self.QLIFConfig["values"][value], 16)
+
+        def read_all_registers(self):
+            """ Read all registers of the QLIFPhotonUpdate and return a dictionary with the values """
+            registers = {}
+            for reg in self.QLIFConfig["addresses"]:
+                addr = self.ADDRESSES(reg)
+                value = self.zynqboard.read_addr(addr)
+                registers[reg] = value
+            return registers
+
+        def start_update(self):
+            """ Start the QLIFPhotonUpdate """
+            self.zynqboard.write_addr(self.ADDRESSES("CONTROL"), self.VALUES("START_UPDATE"))
+            zynq_log("Starting QLIFPhotonUpdate", level="INFO")
+
+        def read_memory(self):
+            """ Read the memory of the QLIFPhotonUpdate and return a list of values """
+            memory_values = []
+            """ measure FLAGS register to check if memory is loaded """
+            flags = self.zynqboard.read_addr(self.ADDRESSES("FLAGS"))
+            if flags == 1:
+                zynq_log(f"Memory loaded confirmed. Script can proceed. ", level="INFO")
+                """ read one DATA_OUT"""
+                memory_value = self.zynqboard.read_addr(self.ADDRESSES("DATA_OUT"))
+                memory_values.append(memory_value)
+                """ Read DATA_OUT register until a value is 0"""
+                while memory_value != 0:
+                    memory_value = self.zynqboard.read_addr(self.ADDRESSES("DATA_OUT"))
+                    memory_values.append(memory_value)
+                return memory_values
+            else:
+                zynq_log(f"Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().", level="ERROR")
+                raise ValueError("Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().")
