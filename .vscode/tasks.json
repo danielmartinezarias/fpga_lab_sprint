@@ -22,6 +22,39 @@
                 "clear": true
             },
             "group": "build"
+        },
+        {
+            "label": "Run Vivado",
+            "type": "shell",
+            "command": "vivado",
+            "args": [
+                "-nolog",
+                "-nojournal",
+                "${input:projectFile_xpr}"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Rebuild Vivado Project",
+            "type": "shell",
+            "command": "rm -r FPGA/project/* & vivado -nolog -nojournal -mode batch -source FPGA/make_project.tcl ",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "projectFile_xpr",
+            "type": "promptString",
+            "description": "Enter the Vivado project file path",
+            "default": "FPGA/vivado/crypto_kernel_fpga/crypto_kernel_fpga.xpr"
         }
     ]
 }

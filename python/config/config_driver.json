@@ -94,7 +94,12 @@
             "DELAY": "0x31",
             "COIN_WINDOW": "0x32",
             "FLAGS": "0x33",
-            "INDEX_MEM_R": "0x34"
+            "INDEX_MEM_R": "0x34",
+            "INDEX_MEM_MAX": "0x35",
+            "HOM_START": "0x36",
+            "DAC_V_SPIKE": "0x37",
+            "REFRACT_TIME": "0x38",
+            "ENABLE_HOM": "0x39"
         },
         "values": {
             "V0": "0x1FFF", 
@@ -103,7 +108,11 @@
             "V_STEP": "0x29", 
             "DELAY": "0xF", 
             "COIN_WINDOW": "0x1",
-            "INDEX_MEM_R": "0x0"
+            "INDEX_MEM_R": "0x0",
+            "HOM_START": "0x1",
+            "DAC_V_SPIKE": "0x2FFF",
+            "REFRACT_TIME": "0x7A120",
+            "ENABLE_HOM": "0x1"
         }
     }
 }

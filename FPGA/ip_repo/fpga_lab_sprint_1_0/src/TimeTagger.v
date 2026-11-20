@@ -26,7 +26,7 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
     input wire [5:0] signal,
     input wire start,
     input wire a_rst,
-    output reg done,
+    output wire done,
 //    output reg startTx,
 //    input doneTx,
     input wire [31:0] intTime, 
@@ -64,7 +64,7 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
     input wire [15:0] delayTT4,
     input wire [15:0] delayTT5
     );
-    
+
     reg [1:0] FSM;
     reg ALU;
     reg resetALU;
@@ -98,7 +98,7 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
         FSM             <= 2'd0;
         ALU             <= 1'b0;
         resetALU        <= 1'b0;
-        done            <= 1'b0;
+        // done            <= 1'b0;
         enableTT        <= 1'b0;
 //        startTx         <= 1'b0;
 //        dets            <= 6'b000000;
@@ -139,7 +139,7 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
                 0:begin//start the TimeTagger finite state machine routine
                     if(start)begin//external start
                         enableTT <= 1'b1;//enable time tagger core
-                        done     <= 1'b0;
+                        // done     <= 1'b0;
                         FSM      <= 2'd1;
                     end
                 end
@@ -194,7 +194,7 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
                         enableTT    <= 1'd0;//disables timeTagger
                         counter     <= 16'd0;//restarts the samplingWindow counter
                         counter2    <= 32'd0;// restarts the intTime counter
-                        done        <= 1'b1;//done flag
+                        // done        <= 1'b1;//done flag
                         //startTx     <= 1'b1;//starts the UART_Tx module
                         dets        <= 6'b000000;//resets the det register
                         dets_ALU    <= dets;//saves the last dets_ALU for ALU
@@ -221,29 +221,34 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
                 2:begin
                     ALU         <= 1'b0;
                     //once the data package is complete we reset the values
-                    C_0         <= C_0_aux;
-                    C_1         <= C_1_aux;
-                    C_2         <= C_2_aux;
-                    C_3         <= C_3_aux;
-                    C_4         <= C_4_aux;
-                    C_5         <= C_5_aux;
-                    CC_01       <= CC_01_aux;
-                    CC_02       <= CC_02_aux;
-                    CC_03       <= CC_03_aux;
-                    CC_04       <= CC_04_aux;
-                    CC_05       <= CC_05_aux;
-                    CC_12       <= CC_12_aux;
-                    CC_13       <= CC_13_aux;
-                    CC_14       <= CC_14_aux;
-                    CC_15       <= CC_15_aux;
-                    CC_23       <= CC_23_aux;
-                    CC_24       <= CC_24_aux;
-                    CC_25       <= CC_25_aux;
-                    CC_34       <= CC_34_aux;
-                    CC_35       <= CC_35_aux;
-                    CC_45       <= CC_45_aux;
-                    FSM         <= 2'd3;//reset
-                    resetALU    <= 1'b1;//reset state for the module ALU_TimeTagger.v
+                    if(done)begin
+                        C_0         <= C_0_aux;
+                        C_1         <= C_1_aux;
+                        C_2         <= C_2_aux;
+                        C_3         <= C_3_aux;
+                        C_4         <= C_4_aux;
+                        C_5         <= C_5_aux;
+                        CC_01       <= CC_01_aux;
+                        CC_02       <= CC_02_aux;
+                        CC_03       <= CC_03_aux;
+                        CC_04       <= CC_04_aux;
+                        CC_05       <= CC_05_aux;
+                        CC_12       <= CC_12_aux;
+                        CC_13       <= CC_13_aux;
+                        CC_14       <= CC_14_aux;
+                        CC_15       <= CC_15_aux;
+                        CC_23       <= CC_23_aux;
+                        CC_24       <= CC_24_aux;
+                        CC_25       <= CC_25_aux;
+                        CC_34       <= CC_34_aux;
+                        CC_35       <= CC_35_aux;
+                        CC_45       <= CC_45_aux;
+                        FSM         <= 2'd3;//reset
+                        resetALU    <= 1'b1;//reset state for the module ALU_TimeTagger.v
+                    end
+                    else begin
+                        resetALU    <= 1'b0;//reset state for the module ALU_TimeTagger.v
+                    end
                 end
                 
                                 
@@ -287,6 +292,7 @@ module TimeTagger #(parameter [7:0] NTaps = 8'd192)(
         .reset(resetALU),
         .dets(dets_ALU),
         .ALU(ALU),
+        .done_ALU(done),
         .CoinWindow({8'd0,CoinWindow_reg}),
         .t0(t0),
         .t1(t1),

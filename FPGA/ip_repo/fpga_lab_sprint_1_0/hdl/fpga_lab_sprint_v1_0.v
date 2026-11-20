@@ -121,6 +121,13 @@
     wire [31:0] qlif_coincidence_window;
     wire [7:0] qlif_flags;
     wire [17:0] qlif_index_mem_r;
+    wire [17:0] qlif_index_mem_max;
+    wire qlif_hom_start;
+    wire qlif_start_tt_hom;
+    wire qlif_reset_tt_hom;
+    wire [13:0] qlif_dac_v_spike;
+    wire [31:0] qlif_refract_time;
+    wire qlif_enable_hom; 
 
     // version and test
     wire master_reset;
@@ -142,8 +149,8 @@
     TimeTagger1 (
         .clk(clk_350MHz),
         .signal(signal),
-        .start(startTT),
-        .a_rst(reset_TT),
+        .start(startTT || qlif_start_tt_hom),
+        .a_rst(reset_TT || qlif_reset_tt_hom),
         .done(done_TT),
         .intTime(intTime),
         .samplingWindow(samplingWindow),
@@ -180,6 +187,7 @@
     assign gpio_breakout[19:6] = (qlif_dac_en) ? qlif_dac_i: dac904_dac_in;
     // assign gpio_breakout[20] = (qlif_dac_en) ? qlif_dac_clk_out: dac904_clk_out;
     assign gpio_breakout[20] = clk_100MHz;
+    assign gpio_breakout[21] = qlif_spike;
     dac904 dac904_inst(
         .clk(clk_100MHz),
         .control(dac904_control),
@@ -196,7 +204,7 @@
         .dac_in(dac904_dac_in),
         .clk_out(dac904_clk_out)
     );
-
+      
     qlif qlif_inst(
         .clk(clk_100MHz),
         .data_out(qlif_data_out),
@@ -211,7 +219,17 @@
         .delay(qlif_delay),
         .coincidence_window(qlif_coincidence_window),
         .flags(qlif_flags),
-        .index_mem_r(qlif_index_mem_r)
+        .index_mem_r(qlif_index_mem_r),
+        .index_mem_max(qlif_index_mem_max),
+        .hom_start(qlif_hom_start),
+        .start_tt_hom(qlif_start_tt_hom),
+        .reset_tt_hom(qlif_reset_tt_hom),
+        .CC_12(CC_12),
+        .done_tt(done_TT),
+        .dac_v_spike(qlif_dac_v_spike), 
+        .spike(qlif_spike),
+        .refract_time(qlif_refract_time),
+        .enable_hom(qlif_enable_hom)
     );
 
 	
@@ -278,6 +296,11 @@
         .qlif_coincidence_window(qlif_coincidence_window),
         .qlif_flags(qlif_flags),
         .qlif_index_mem_r(qlif_index_mem_r),
+        .qlif_index_mem_max(qlif_index_mem_max),
+        .qlif_hom_start(qlif_hom_start),
+        .qlif_dac_v_spike(qlif_dac_v_spike),
+        .qlif_refract_time(qlif_refract_time),
+        .qlif_enable_hom(qlif_enable_hom),
         // version and test
         .master_reset(master_reset),
         .test_reg(test_reg),

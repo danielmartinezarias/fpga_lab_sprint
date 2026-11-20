@@ -582,3 +582,14 @@ class ZynqBoard:
             else:
                 zynq_log(f"Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().", level="ERROR")
                 raise ValueError("Memory not loaded. Please load the pulse sequence into memory first using load_pulse_memory().")
+
+        def hom_based_update(self, V0: int, V_STEP: int, DAC_V_SPIKE: int, REFRACT_TIME: int):
+            """ Perform a HOM-based update of the QLIFPhotonUpdate """
+            # send all parameters
+            self.zynqboard.write_addr(self.ADDRESSES("V0"), V0)
+            self.zynqboard.write_addr(self.ADDRESSES("V_STEP"), V_STEP)
+            self.zynqboard.write_addr(self.ADDRESSES("DAC_V_SPIKE"), DAC_V_SPIKE)
+            self.zynqboard.write_addr(self.ADDRESSES("REFRACT_TIME"), REFRACT_TIME)
+            # start the update
+            self.zynqboard.write_addr(self.ADDRESSES("ENABLE_HOM"), self.VALUES("ENABLE_HOM"))
+            self.zynqboard.write_addr(self.ADDRESSES("HOM_START"), self.VALUES("HOM_START"))

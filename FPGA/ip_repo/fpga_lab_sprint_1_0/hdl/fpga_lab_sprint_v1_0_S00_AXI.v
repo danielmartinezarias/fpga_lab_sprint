@@ -73,6 +73,11 @@
 		output reg [31:0] qlif_coincidence_window = 32'd1, // 1 clk cycle = 10ns at 100MHz
 		input wire [7:0] qlif_flags,
 		output reg [17:0] qlif_index_mem_r = 18'd0,
+		input wire [17:0] qlif_index_mem_max,
+		output reg qlif_hom_start = 1'b0,
+		output reg [13:0] qlif_dac_v_spike = 14'd0,
+		output reg [31:0] qlif_refract_time = 32'd0,
+		output reg qlif_enable_hom = 1'b0,
 		// version and test
 		output reg master_reset = 1'd0,
 		output reg [31:0] test_reg = 32'd1234567,
@@ -81,7 +86,9 @@
 		// v05 2026-03-24 DMA: dac904 pulses
 		// v06 2026-06-10 DMA: dac904 adjustable ramp
 		// v07 2026-06-25 DMA: dac904 memory based, and update rule for the qlif experiment
-		output reg [7:0] version = 8'd7,
+		// v08 2026-11-18 DMA: qlif hom experiment
+		// v09 2026-11-20 DMA: qlif hom experiment
+		output reg [7:0] version = 8'd9,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -3014,11 +3021,11 @@
 	        8'h32   : reg_data_out <= qlif_coincidence_window;
 	        8'h33   : reg_data_out <= {24'd0,qlif_flags};
 	        8'h34   : reg_data_out <= {14'd0,qlif_index_mem_r};
-	        8'h35   : reg_data_out <= slv_reg53;
-	        8'h36   : reg_data_out <= slv_reg54;
-	        8'h37   : reg_data_out <= slv_reg55;
-	        8'h38   : reg_data_out <= slv_reg56;
-	        8'h39   : reg_data_out <= slv_reg57;
+	        8'h35   : reg_data_out <= {14'd0,qlif_index_mem_max};
+	        8'h36   : reg_data_out <= {31'd0,qlif_hom_start}; // flag qlif_hom_start
+	        8'h37   : reg_data_out <= {18'd0,qlif_dac_v_spike};
+	        8'h38   : reg_data_out <= qlif_refract_time;
+	        8'h39   : reg_data_out <= {31'd0,qlif_enable_hom}; // flag qlif_enable_hom
 	        8'h3A   : reg_data_out <= slv_reg58;
 	        8'h3B   : reg_data_out <= slv_reg59;
 	        8'h3C   : reg_data_out <= slv_reg60;
@@ -3303,11 +3310,11 @@
 	        8'h32   : qlif_coincidence_window <= slv_reg50;
 	        // 8'h33   : replace_this_reg <= slv_reg51; // qlif_flags
 	        8'h34   : qlif_index_mem_r <= slv_reg52[17:0];
-	        // 8'h35   : replace_this_reg <= slv_reg53;
-	        // 8'h36   : replace_this_reg <= slv_reg54;
-	        // 8'h37   : replace_this_reg <= slv_reg55;
-	        // 8'h38   : replace_this_reg <= slv_reg56;
-	        // 8'h39   : replace_this_reg <= slv_reg57;
+	        // 8'h35   : replace_this_reg <= slv_reg53; // qlif_index_mem_max
+	        8'h36   : qlif_hom_start <= 1'b1;
+	        8'h37   : qlif_dac_v_spike <= slv_reg55[13:0];
+	        8'h38   : qlif_refract_time <= slv_reg56;
+	        8'h39   : qlif_enable_hom <= slv_reg57[0];
 	        // 8'h3A   : replace_this_reg <= slv_reg58;
 	        // 8'h3B   : replace_this_reg <= slv_reg59;
 	        // 8'h3C   : replace_this_reg <= slv_reg60;
@@ -3514,6 +3521,7 @@
 			master_reset		<= 1'b0;
 			dac904_write2mem	<= 1'b0;
 			qlif_start			<= 1'b0;
+			qlif_hom_start		<= 1'b0;
         end
     end
     

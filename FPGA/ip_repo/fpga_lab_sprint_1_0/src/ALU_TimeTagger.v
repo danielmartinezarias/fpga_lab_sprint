@@ -23,6 +23,7 @@ module ALU_TimeTagger(
     input reset,
     input [5:0] dets,
     input ALU,
+    output reg done_ALU = 1'b0,
     input [23:0] CoinWindow,
     input [23:0] t0,t1,t2,t3,t4,t5,
     output reg [31:0] dontcareC,
@@ -44,6 +45,7 @@ module ALU_TimeTagger(
     //initalize variables
     initial begin
         FSM             <= 3'd0;
+        done_ALU        <= 1'b0;
         tA              <= 24'd0;
         tB              <= 24'd0;
         coincidence     <= 1'b0;
@@ -106,6 +108,7 @@ module ALU_TimeTagger(
                             //n-plets
                             default:begin FSM <= 3; end
                         endcase
+                        done_ALU <= 1'b0;
                     end
                 end
                 
@@ -207,12 +210,14 @@ module ALU_TimeTagger(
                     endcase
                     //return to inital state
                     coincidence <= 1'b0;
+                    done_ALU    <= 1'b1;
                     FSM         <= 0;
                 end
             
                 4:begin
                 //general reset
                     FSM             <= 3'd0;
+                    done_ALU        <= 1'b0;
                     tA              <= 24'd0;
                     tB              <= 24'd0;
                     coincidence     <= 1'b0;
